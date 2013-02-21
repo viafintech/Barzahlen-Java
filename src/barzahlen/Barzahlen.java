@@ -65,10 +65,10 @@ public class Barzahlen {
     protected static String BARZAHLEN_UPDATE_URL;
 
     static {
-        BARZAHLEN_CREATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/create";
-        BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/resend_email";
-        BARZAHLEN_REFUND_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/refund";
-        BARZAHLEN_UPDATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/update";
+        BARZAHLEN_CREATE_URL = "https://api.barzahlen.de/v1/transactions/create";
+        BARZAHLEN_RESEND_EMAIL_URL = "https://api.barzahlen.de/v1/transactions/resend_email";
+        BARZAHLEN_REFUND_URL = "https://api.barzahlen.de/v1/transactions/refund";
+        BARZAHLEN_UPDATE_URL = "https://api.barzahlen.de/v1/transactions/update";
         BARZAHLEN_DEBUGGING_MODE = true;
     }
 
