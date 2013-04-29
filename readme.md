@@ -1,4 +1,4 @@
-# Barzahlen Payment Module Java SDK (v1.0.0)
+# Barzahlen Payment Module Java SDK (v1.0.1)
 
 ## Copyright
 (c) 2013, Zerebro Internet GmbH  
