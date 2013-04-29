@@ -21,16 +21,11 @@
  */
 package barzahlen.request;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
 import java.util.HashMap;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.log4j.Logger;
 
+import barzahlen.BarzahlenApiRequest;
 import barzahlen.Barzahlen;
 import barzahlen.request.xml.CreateXMLInfo;
 
@@ -44,7 +39,7 @@ public final class CreateRequest extends ServerRequest {
     /**
      * Log file for the logger.
      */
-    private static Logger createRequestLog = Logger.getLogger(CreateRequest.class);
+    private static Logger createRequestLog = Logger.getLogger(CreateRequest.class.getName());
 
     /**
      * The xml info retrieved from the server response.
@@ -95,64 +90,35 @@ public final class CreateRequest extends ServerRequest {
     }
 
     @Override
-    protected String assembleParameters(HashMap<String, String> _parameters) {
-        String hashMessage = this.shopId + ";" + _parameters.get("customer_email") + ";" + _parameters.get("amount") + ";"
-                + _parameters.get("currency") + ";" + _parameters.get("language") + ";" + _parameters.get("order_id") + ";"
-                + _parameters.get("customer_street_nr") + ";" + _parameters.get("customer_zipcode") + ";"
-                + _parameters.get("customer_city") + ";" + _parameters.get("customer_country") + ";" + _parameters.get("custom_var_0")
-                + ";" + _parameters.get("custom_var_1") + ";" + _parameters.get("custom_var_2") + ";" + this.paymentKey;
+    protected String[] getParametersTemplate() {
+        String parametersTemplate[] = new String[14];
+        parametersTemplate[0] = "shop_id";
+        parametersTemplate[1] = "customer_email";
+        parametersTemplate[2] = "amount";
+        parametersTemplate[3] = "currency";
+        parametersTemplate[4] = "language";
+        parametersTemplate[5] = "order_id";
+        parametersTemplate[6] = "customer_street_nr";
+        parametersTemplate[7] = "customer_zipcode";
+        parametersTemplate[8] = "customer_city";
+        parametersTemplate[9] = "customer_country";
+        parametersTemplate[10] = "custom_var_0";
+        parametersTemplate[11] = "custom_var_1";
+        parametersTemplate[12] = "custom_var_2";
+        parametersTemplate[13] = "payment_key";
 
-        String hash = createHash(hashMessage);
-
-        String params = "shop_id=" + this.shopId + "&customer_email=" + _parameters.get("customer_email") + "&amount="
-                + _parameters.get("amount") + "&currency=" + _parameters.get("currency") + "&language=" + _parameters.get("language")
-                + "&order_id=" + _parameters.get("order_id") + "&customer_street_nr=" + _parameters.get("customer_street_nr")
-                + "&customer_zipcode=" + _parameters.get("customer_zipcode") + "&customer_city=" + _parameters.get("customer_city")
-                + "&customer_country=" + _parameters.get("customer_country") + "&custom_var_0=" + _parameters.get("custom_var_0")
-                + "&custom_var_1=" + _parameters.get("custom_var_1") + "&custom_var_2=" + _parameters.get("custom_var_2") + "&hash=" + hash;
-
-        return params;
+        return parametersTemplate;
     }
 
     @Override
     protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-        URL url = new URL(_targetURL);
-        HttpsURLConnection httpCon = (HttpsURLConnection) url.openConnection();
-        httpCon.setRequestMethod("POST");
-        httpCon.setDoOutput(true);
-        httpCon.setDoInput(true);
-        httpCon.setUseCaches(false);
-
-        OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream());
-        out.write(_urlParameters);
-        out.flush();
-        out.close();
-
-        BufferedReader br;
-
-        int responseCode = httpCon.getResponseCode();
-
-        if (responseCode == 200) {
-            br = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
-        } else {
-            br = new BufferedReader(new InputStreamReader(httpCon.getErrorStream()));
-        }
-
-        String input = "";
-        String xml = "";
-
-        while ((input = br.readLine()) != null) {
-            xml += input + "\n";
-        }
-
-        br.close();
-
-        boolean xmlResult = CreateRequest.XML_INFO.readXMLFile(xml, responseCode);
+        BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL,CreateRequest.XML_INFO);
+        boolean successful = request.doRequest(_urlParameters);
 
         if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-            createRequestLog.debug("Response code: " + responseCode + ". Response message: " + httpCon.getResponseMessage()
+            createRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
                     + ". Parameters sent: " + ServerRequest.formatReadableParameters(_urlParameters));
-            createRequestLog.debug(xml);
+            createRequestLog.debug(request.getResult());
             createRequestLog.debug(CreateRequest.XML_INFO.getTransactionId());
             createRequestLog.debug(CreateRequest.XML_INFO.getPaymentSlipLink());
             createRequestLog.debug(CreateRequest.XML_INFO.getExpirationNotice());
@@ -162,10 +128,10 @@ public final class CreateRequest extends ServerRequest {
             createRequestLog.debug(CreateRequest.XML_INFO.getHash());
         }
 
-        if (!xmlResult) {
+        if (!successful) {
             return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, createRequestLog,
-                    "Payment slip request failed - retry", "Error received from the server. Response code: " + responseCode
-                            + ". Response message: " + httpCon.getResponseMessage());
+                    "Payment slip request failed - retry", "Error received from the server. Response code: " + request.getResponseCode()
+                    + ". Response message: " + request.getResponseMessage());
         } else if (!CreateRequest.XML_INFO.checkParameters()) {
             return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, createRequestLog,
                     "Payment slip request failed - retry", "There are errors with parameters received from the server.");
@@ -185,7 +151,7 @@ public final class CreateRequest extends ServerRequest {
         String data = CreateRequest.XML_INFO.getTransactionId() + ";" + CreateRequest.XML_INFO.getPaymentSlipLink() + ";"
                 + CreateRequest.XML_INFO.getExpirationNotice() + ";" + CreateRequest.XML_INFO.getInfotext1() + ";"
                 + CreateRequest.XML_INFO.getInfotext2() + ";" + CreateRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-        hash = createHash(data);
+        hash = calculateHash(data);
 
         if (hash.equals(CreateRequest.XML_INFO.getHash())) {
             return true;

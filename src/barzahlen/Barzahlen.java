@@ -23,6 +23,7 @@ package barzahlen;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 import barzahlen.logging.BarzahlenAppender;
 
@@ -64,11 +65,17 @@ public class Barzahlen {
      */
     protected static String BARZAHLEN_UPDATE_URL;
 
+    /**
+     * The Url to send the cancel request
+     */
+    protected static String BARZAHLEN_CANCEL_URL;
+
     static {
-        BARZAHLEN_CREATE_URL = "https://api.barzahlen.de/v1/transactions/create";
-        BARZAHLEN_RESEND_EMAIL_URL = "https://api.barzahlen.de/v1/transactions/resend_email";
-        BARZAHLEN_REFUND_URL = "https://api.barzahlen.de/v1/transactions/refund";
-        BARZAHLEN_UPDATE_URL = "https://api.barzahlen.de/v1/transactions/update";
+        BARZAHLEN_CREATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/create";
+        BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/resend_email";
+        BARZAHLEN_REFUND_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/refund";
+        BARZAHLEN_UPDATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/update";
+        BARZAHLEN_CANCEL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/cancel";
         BARZAHLEN_DEBUGGING_MODE = true;
     }
 
@@ -138,13 +145,35 @@ public class Barzahlen {
             BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/resend_email";
             BARZAHLEN_REFUND_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/refund";
             BARZAHLEN_UPDATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/update";
+            BARZAHLEN_CANCEL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/cancel";
         } else if (mode == SandboxDebugMode.DEBUG) {
             sandboxDebugMode = SandboxDebugMode.DEBUG;
             BARZAHLEN_CREATE_URL = "https://api-staging.barzahlen.de/v1/transactions/create";
             BARZAHLEN_RESEND_EMAIL_URL = "https://api-staging.barzahlen.de/v1/transactions/resend_email";
             BARZAHLEN_REFUND_URL = "https://api-staging.barzahlen.de/v1/transactions/refund";
             BARZAHLEN_UPDATE_URL = "https://api-staging.barzahlen.de/v1/transactions/update";
+            BARZAHLEN_CANCEL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/cancel";
         }
+    }
+
+    /**
+     * Creates hash from parameters list, order like in the template
+     *
+     * @param template
+     * @param parameters
+     * @return The SHA512 hash
+     */
+    public static String createHash(String[] template, HashMap<String, String> parameters) {
+        StringBuilder message = new StringBuilder();
+
+        for (String value : template) {
+            message.append(parameters.get(value));
+            message.append(";");
+        }
+
+        message.deleteCharAt(message.length() - 1);
+
+        return calculateHash(message.toString());
     }
 
     /**
@@ -154,7 +183,7 @@ public class Barzahlen {
      *            The message to create the hash from
      * @return The SHA512 hash
      */
-    public static String createHash(String message) {
+    public static String calculateHash(String message) {
         MessageDigest md;
         String out = "";
 
@@ -181,6 +210,30 @@ public class Barzahlen {
         return out;
     }
 
+
+    /**
+     * Creates parameter list for url from list of strings
+     *
+     * @param template
+     * @param parameters
+     * @return parameters for url
+     */
+    public static String createParametersString(String[] template, HashMap<String, String> parameters) {
+        StringBuilder parametersString = new StringBuilder();
+
+        for (String value : template) {
+            if (parameters.containsKey(value)) {
+                parametersString.append(value);
+                parametersString.append("=");
+                parametersString.append(parameters.get(value));
+                parametersString.append("&");
+            }
+        }
+
+        parametersString.deleteCharAt(parametersString.length() - 1);
+
+        return parametersString.toString();
+    }
     /**
      * Set all parameters
      * 
