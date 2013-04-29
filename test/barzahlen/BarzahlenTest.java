@@ -86,7 +86,7 @@ public class BarzahlenTest {
     public void testCreateHash1() {
         assertTrue("Hash test",
                 "da72511660e27c6ab5b20b2828d123dd1243331407e0b0063f1ae0a308c9fb2d3426708208a7cabcda0af1e0e1b32ea2bce06f72e25bfb15e58f11375b4a8bf6"
-                        .equals(Barzahlen.createHash("hash message")));
+                        .equals(Barzahlen.calculateHash("hash message")));
     }
 
     /**
@@ -98,7 +98,7 @@ public class BarzahlenTest {
         // Introduce the hash from an empty string
         assertTrue("Hash test",
                 "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
-                        .equals(Barzahlen.createHash("")));
+                        .equals(Barzahlen.calculateHash("")));
     }
 
     /**
@@ -110,7 +110,7 @@ public class BarzahlenTest {
         // Introduce a hash with errors
         assertFalse("Hash test",
                 "1a72511660e27c6ab5b20b2828d123dd1243331407e0b0063f1ae0a308c9fb2d3426708208a7cabcda0af1e0e1b32ea2bce06f72e25bfb15e58f11375b4a8bf6"
-                        .equals(Barzahlen.createHash("hash message")));
+                        .equals(Barzahlen.calculateHash("hash message")));
     }
 
     /**

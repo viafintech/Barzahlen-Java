@@ -169,7 +169,7 @@ public final class RefundNotification extends Notification {
 
                                     if (am.equals(_am)) {
 
-                                        if (Barzahlen.createHash(message).equals(this._hash)) {
+                                        if (Barzahlen.calculateHash(message).equals(this._hash)) {
                                             BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.SUCCESS;
                                             return true;
                                         }

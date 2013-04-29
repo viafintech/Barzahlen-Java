@@ -21,16 +21,11 @@
  */
 package barzahlen.request;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
 import java.util.HashMap;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.log4j.Logger;
 
+import barzahlen.BarzahlenApiRequest;
 import barzahlen.Barzahlen;
 import barzahlen.request.xml.RefundXMLInfo;
 
@@ -96,73 +91,42 @@ public final class RefundRequest extends ServerRequest {
     }
 
     @Override
-    protected String assembleParameters(HashMap<String, String> _parameters) {
-        String hashMessage = this.shopId + ";" + _parameters.get("transaction_id") + ";" + _parameters.get("amount") + ";"
-                + _parameters.get("currency") + ";" + _parameters.get("language") + ";" + this.paymentKey;
+    protected String[] getParametersTemplate() {
+        String parametersTemplate[] = new String[6];
+        parametersTemplate[0] = "shop_id";
+        parametersTemplate[1] = "transaction_id";
+        parametersTemplate[2] = "amount";
+        parametersTemplate[3] = "currency";
+        parametersTemplate[4] = "language";
+        parametersTemplate[5] = "payment_key";
 
-        String hash = createHash(hashMessage);
-
-        String params = "shop_id=" + this.shopId + "&transaction_id=" + _parameters.get("transaction_id") + "&amount="
-                + _parameters.get("amount") + "&currency=" + _parameters.get("currency") + "&language=" + _parameters.get("language")
-                + "&hash=" + hash;
-
-        return params;
+        return parametersTemplate;
     }
 
     @Override
     protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-        URL url = new URL(_targetURL);
-        HttpsURLConnection httpCon = (HttpsURLConnection) url.openConnection();
-        httpCon.setRequestMethod("POST");
-        httpCon.setDoOutput(true);
-        httpCon.setDoInput(true);
-        httpCon.setUseCaches(false);
-
-        OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream());
-        out.write(_urlParameters);
-        out.flush();
-        out.close();
-
-        BufferedReader br;
-
-        int responseCode = httpCon.getResponseCode();
-
-        if (responseCode == 200) {
-            br = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
-        } else {
-            br = new BufferedReader(new InputStreamReader(httpCon.getErrorStream()));
-        }
-
-        String input = "";
-        String xml = "";
-
-        while ((input = br.readLine()) != null) {
-            xml += input + "\n";
-        }
-
-        br.close();
-
-        boolean xmlResult = RefundRequest.XML_INFO.readXMLFile(xml, responseCode);
+        BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, RefundRequest.XML_INFO);
+        boolean successful = request.doRequest(_urlParameters);
 
         if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-            refundRequestLog.debug("Response code: " + responseCode + ". Response message: " + httpCon.getResponseMessage()
+            refundRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
                     + ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
-            refundRequestLog.debug(xml);
+            refundRequestLog.debug(request.getResult());
             refundRequestLog.debug(RefundRequest.XML_INFO.getOriginTransactionId());
             refundRequestLog.debug(RefundRequest.XML_INFO.getRefundTransactionId());
             refundRequestLog.debug(String.valueOf(RefundRequest.XML_INFO.getResult()));
             refundRequestLog.debug(RefundRequest.XML_INFO.getHash());
         }
 
-        if (!xmlResult) {
+        if (!successful) {
             return errorAction(
                     _targetURL,
                     _urlParameters,
                     RequestErrorCode.XML_ERROR,
                     refundRequestLog,
                     "Refund request failed - retry",
-                    "Error received from the server. Response code: " + responseCode + ". Response message: "
-                            + httpCon.getResponseMessage());
+                    "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: "
+                            + request.getResponseMessage());
         } else if (!RefundRequest.XML_INFO.checkParameters()) {
             return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, refundRequestLog,
                     "Refund request failed - retry", "There are errors with parameters received from the server.");
@@ -181,7 +145,7 @@ public final class RefundRequest extends ServerRequest {
 
         String data = RefundRequest.XML_INFO.getOriginTransactionId() + ";" + RefundRequest.XML_INFO.getRefundTransactionId() + ";"
                 + RefundRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-        hash = createHash(data);
+        hash = calculateHash(data);
 
         if (hash.equals(RefundRequest.XML_INFO.getHash())) {
             return true;

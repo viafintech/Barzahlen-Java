@@ -50,6 +50,11 @@ public class ServerRequestTest {
             protected String assembleParameters(HashMap<String, String> _parameters) {
                 return null;
             }
+
+            @Override
+            protected String[] getParametersTemplate() {
+                return new String[0];
+            }
         };
         Barzahlen.setDebuggingMode(true);
     }

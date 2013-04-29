@@ -21,18 +21,11 @@
  */
 package barzahlen.request;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
 import java.util.HashMap;
 
-import javax.net.ssl.HttpsURLConnection;
-
 import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
 
+import barzahlen.BarzahlenApiRequest;
 import barzahlen.Barzahlen;
 import barzahlen.request.xml.UpdateXMLInfo;
 
@@ -97,11 +90,22 @@ public class UpdateRequest extends ServerRequest {
     }
 
     @Override
+    protected String[] getParametersTemplate() {
+        String parametersTemplate[] = new String[4];
+        parametersTemplate[0] = "shop_id";
+        parametersTemplate[1] = "transaction_id";
+        parametersTemplate[2] = "order_id";
+        parametersTemplate[3] = "payment_key";
+
+        return parametersTemplate;
+    }
+
+    @Override
     protected String assembleParameters(HashMap<String, String> _parameters) {
         String hashMessage = this.shopId + ";" + _parameters.get("transaction_id") + ";" + _parameters.get("order_id") + ";"
                 + this.paymentKey;
 
-        String hash = createHash(hashMessage);
+        String hash = calculateHash(hashMessage);
 
         String params = "shop_id=" + this.shopId + "&transaction_id=" + _parameters.get("transaction_id") + "&order_id="
                 + _parameters.get("order_id") + "&hash=" + hash;
@@ -110,58 +114,28 @@ public class UpdateRequest extends ServerRequest {
     }
 
     @Override
-    protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws IOException, SAXException, Exception {
-        URL url = new URL(_targetURL);
-        HttpsURLConnection httpCon = (HttpsURLConnection) url.openConnection();
-        httpCon.setRequestMethod("POST");
-        httpCon.setDoOutput(true);
-        httpCon.setDoInput(true);
-        httpCon.setUseCaches(false);
-
-        OutputStreamWriter out = new OutputStreamWriter(httpCon.getOutputStream());
-        out.write(_urlParameters);
-        out.flush();
-        out.close();
-
-        BufferedReader br;
-
-        int responseCode = httpCon.getResponseCode();
-
-        if (responseCode == 200) {
-            br = new BufferedReader(new InputStreamReader(httpCon.getInputStream()));
-        } else {
-            br = new BufferedReader(new InputStreamReader(httpCon.getErrorStream()));
-        }
-
-        String input = "";
-        String xml = "";
-
-        while ((input = br.readLine()) != null) {
-            xml += input + "\n";
-        }
-
-        br.close();
-
-        boolean xmlResult = UpdateRequest.XML_INFO.readXMLFile(xml, responseCode);
+    protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
+        BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, ResendEmailRequest.XML_INFO);
+        boolean successful = request.doRequest(_urlParameters);
 
         if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-            updateRequestLog.debug("Response code: " + responseCode + ". Response message: " + httpCon.getResponseMessage()
+            updateRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
                     + ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
-            updateRequestLog.debug(xml);
+            updateRequestLog.debug(request.getResult());
             updateRequestLog.debug(UpdateRequest.XML_INFO.getTransactionId());
             updateRequestLog.debug(String.valueOf(UpdateRequest.XML_INFO.getResult()));
             updateRequestLog.debug(UpdateRequest.XML_INFO.getHash());
         }
 
-        if (!xmlResult) {
+        if (!successful) {
             return errorAction(
                     _targetURL,
                     _urlParameters,
                     RequestErrorCode.XML_ERROR,
                     updateRequestLog,
                     "Update request failed - retry",
-                    "Error received from the server. Response code: " + responseCode + ". Response message: "
-                            + httpCon.getResponseMessage());
+                    "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: "
+                            + request.getResponseMessage());
         } else if (!UpdateRequest.XML_INFO.checkParameters()) {
             return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, updateRequestLog,
                     "Update request failed - retry", "There are errors with parameters received from the server.");
@@ -179,7 +153,7 @@ public class UpdateRequest extends ServerRequest {
         String hash = new String();
 
         String data = UpdateRequest.XML_INFO.getTransactionId() + ";" + UpdateRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-        hash = createHash(data);
+        hash = calculateHash(data);
 
         if (hash.equals(UpdateRequest.XML_INFO.getHash())) {
             return true;

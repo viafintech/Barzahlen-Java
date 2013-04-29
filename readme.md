@@ -19,12 +19,14 @@ You can execute requests to Barzahlen server just instantiating the proper class
 > RefundRequest refundRequest = new RefundRequest(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");  
 > ResendEmailRequest resendEmailRequest = new ResendEmailRequest(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");  
 > UpdateRequest updateRequest = new UpdateRequest(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");  
+> CancelRequest cancelRequest = new CancelRequest(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");  
 >
 > try {
 >   createRequest.create(order_parameters);  
 >   resendEmailRequest.resendEmail(order_parameters);  
 >   this.refundRequest.refund(order_parameters);  
 >   this.updateRequest.updateOrder(order_parameters);  
+>   this.cancelRequest.cancelOrder(order_parameters);  
 > }  
 > catch(Exception e) {  
 >   // Customize your exception behavior  
@@ -35,7 +37,8 @@ After a successful query (if there are no exceptions) parsed XML from the server
 > CreateRequest.XML_INFO  
 > RefundRequest.XML_INFO  
 > ResendEmailRequest.XML_INFO  
-> UpdateRequest.XML_INFO
+> UpdateRequest.XML_INFO  
+> CancelRequest.XML_INFO
 
 ### Notifications received from Barzahlen
 Classes for notifications can be instantiated in the same way than before, passing the server request and response by parameters.

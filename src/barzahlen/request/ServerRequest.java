@@ -175,15 +175,41 @@ public abstract class ServerRequest extends Barzahlen {
 
         throw new Exception(_errorMessage2);
     }
-    
+
     /**
      * Builds all the parameters necessary for the refund request.
-     * 
+     *
      * @param _parameters
      *            The parameters to assemble
      * @return The parameters already assembled, ready for the post request.
      */
-    protected abstract String assembleParameters(HashMap<String, String> _parameters);
+    protected String assembleParameters(HashMap<String, String> _parameters) {
+        HashMap<String, String> parameters = new HashMap<String, String>(_parameters);
+
+        parameters.put("shop_id", this.shopId);
+        parameters.put("payment_key", this.paymentKey);
+
+        String hash = createHash(getParametersTemplate(), parameters);
+
+        parameters.remove("payment_key");
+
+        StringBuilder parametersString = new StringBuilder(createParametersString(getParametersTemplate(), parameters));
+
+        parametersString.append("&");
+        parametersString.append("hash");
+        parametersString.append("=");
+        parametersString.append(hash);
+
+        return parametersString.toString();
+    }
+
+    /**
+     * Returns an string array with names of variables that could be used
+     * for the request, in the order where they will be used to generate the hash
+     *
+     * @return String[]
+     */
+    protected abstract String[] getParametersTemplate();
 
     /**
      * Executes a http request via post
