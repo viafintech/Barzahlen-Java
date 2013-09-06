@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/
  *
- * @copyright   Copyright (c) 2012 Zerebro Internet GmbH (http://www.barzahlen.de/)
- * @author      Jesus Javier Nuno Garcia
- * @license     http://opensource.org/licenses/GPL-3.0  GNU General Public License, version 3 (GPL-3.0)
+ * @copyright Copyright (c) 2012 Zerebro Internet GmbH (http://www.barzahlen.de/)
+ * @author Jesus Javier Nuno Garcia
+ * @license http://opensource.org/licenses/GPL-3.0  GNU General Public License, version 3 (GPL-3.0)
  */
 package de.barzahlen.notification;
 
 /**
  * Enumeration for error codes in notifications.
- * 
+ *
  * @author Jesus Javier Nuno Garcia
  */
 public enum NotificationErrorCode {
-    HASH_ERROR, SHOP_ID_ERROR, TRANSACTION_STATE_ERROR, BARZAHLEN_ORIGIN_TRANSACTION_ID_ERROR, BARZAHLEN_TRANSACTION_STATE_ERROR, BARZAHLEN_ORIGIN_ORDER_ID_ERROR, CUSTOMER_EMAIL_ERROR, CURRENCY_ERROR, AMOUNT_ERROR, SUCCESS
+	HASH_ERROR, SHOP_ID_ERROR, TRANSACTION_STATE_ERROR, BARZAHLEN_ORIGIN_TRANSACTION_ID_ERROR, BARZAHLEN_TRANSACTION_STATE_ERROR, BARZAHLEN_ORIGIN_ORDER_ID_ERROR, CUSTOMER_EMAIL_ERROR, CURRENCY_ERROR, AMOUNT_ERROR, SUCCESS
 }

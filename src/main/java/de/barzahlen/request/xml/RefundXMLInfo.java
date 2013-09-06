@@ -7,7 +7,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details. You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/
- * 
+ *
  * @copyright Copyright (c) 2012 Zerebro Internet GmbH
  *            (http://www.barzahlen.de/)
  * @author Jesus Javier Nuno Garcia
@@ -23,243 +23,243 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Parses the XML data retrieved from the server for the "refund" request
- * 
+ *
  * @author Jesus Javier Nuno Garcia
  */
 public class RefundXMLInfo extends XMLInfo {
 
-    /**
-     * The origin transaction id
-     */
-    protected String originTransactionId;
+	/**
+	 * The origin transaction id
+	 */
+	protected String originTransactionId;
 
-    /**
-     * The refund transaction id
-     */
-    protected String refundTransactionId;
+	/**
+	 * The refund transaction id
+	 */
+	protected String refundTransactionId;
 
-    /**
-     * Result value
-     */
-    protected String result;
+	/**
+	 * Result value
+	 */
+	protected String result;
 
-    /**
-     * Information hash
-     */
-    protected String hash;
+	/**
+	 * Information hash
+	 */
+	protected String hash;
 
-    /**
-     * The error message in case of bad request
-     */
-    protected String errorMessage;
+	/**
+	 * The error message in case of bad request
+	 */
+	protected String errorMessage;
 
-    /**
-     * Default constructor
-     */
-    public RefundXMLInfo() {
-        super();
-        this.paramsAmountExpected = 4;
-        this.originTransactionId = "";
-        this.refundTransactionId = "";
-        this.result = "0";
-        this.hash = "";
-        this.errorMessage = "";
-    }
+	/**
+	 * Default constructor
+	 */
+	public RefundXMLInfo() {
+		super();
+		this.paramsAmountExpected = 4;
+		this.originTransactionId = "";
+		this.refundTransactionId = "";
+		this.result = "0";
+		this.hash = "";
+		this.errorMessage = "";
+	}
 
-    @Override
-    protected void initHandlers() {
+	@Override
+	protected void initHandlers() {
 
-        this.normalHandler = new DefaultHandler() {
+		this.normalHandler = new DefaultHandler() {
 
-            String currentStartingTag = "";
+			String currentStartingTag = "";
 
-            String currentEndingTag = "";
+			String currentEndingTag = "";
 
-            String currentLine = "";
+			String currentLine = "";
 
-            boolean setCurrentLine = false;
+			boolean setCurrentLine = false;
 
-            boolean otid = false;
+			boolean otid = false;
 
-            boolean rtid = false;
+			boolean rtid = false;
 
-            boolean res = false;
+			boolean res = false;
 
-            boolean hsh = false;
+			boolean hsh = false;
 
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+			@Override
+			public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-                if (qName.equalsIgnoreCase("origin-transaction-id")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.otid = true;
-                    this.setCurrentLine = true;
-                }
+				if (qName.equalsIgnoreCase("origin-transaction-id")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.otid = true;
+					this.setCurrentLine = true;
+				}
 
-                if (qName.equalsIgnoreCase("refund-transaction-id")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.rtid = true;
-                    this.setCurrentLine = true;
-                }
+				if (qName.equalsIgnoreCase("refund-transaction-id")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.rtid = true;
+					this.setCurrentLine = true;
+				}
 
-                if (qName.equalsIgnoreCase("result")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.res = true;
-                    this.setCurrentLine = true;
-                }
+				if (qName.equalsIgnoreCase("result")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.res = true;
+					this.setCurrentLine = true;
+				}
 
-                if (qName.equalsIgnoreCase("hash")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.hsh = true;
-                    this.setCurrentLine = true;
-                }
-            }
+				if (qName.equalsIgnoreCase("hash")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.hsh = true;
+					this.setCurrentLine = true;
+				}
+			}
 
-            @Override
-            public void endElement(String uri, String localName, String qName) throws SAXException {
-                this.currentEndingTag = "<" + qName + ">";
+			@Override
+			public void endElement(String uri, String localName, String qName) throws SAXException {
+				this.currentEndingTag = "<" + qName + ">";
 
-                if (this.currentStartingTag.equals(this.currentEndingTag)) {
-                    if (this.otid) {
-                        int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                        RefundXMLInfo.this.originTransactionId = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
-                                currentEndingTagPosition));
-                        this.otid = false;
-                        RefundXMLInfo.this.paramsAmountReceived++;
-                    }
+				if (this.currentStartingTag.equals(this.currentEndingTag)) {
+					if (this.otid) {
+						int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+						RefundXMLInfo.this.originTransactionId = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
+								currentEndingTagPosition));
+						this.otid = false;
+						RefundXMLInfo.this.paramsAmountReceived++;
+					}
 
-                    if (this.rtid) {
-                        int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                        RefundXMLInfo.this.refundTransactionId = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
-                                currentEndingTagPosition));
-                        this.rtid = false;
-                        RefundXMLInfo.this.paramsAmountReceived++;
-                    }
+					if (this.rtid) {
+						int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+						RefundXMLInfo.this.refundTransactionId = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
+								currentEndingTagPosition));
+						this.rtid = false;
+						RefundXMLInfo.this.paramsAmountReceived++;
+					}
 
-                    if (this.res) {
-                        int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                        RefundXMLInfo.this.result = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0, currentEndingTagPosition));
-                        this.res = false;
-                        RefundXMLInfo.this.paramsAmountReceived++;
-                    }
+					if (this.res) {
+						int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+						RefundXMLInfo.this.result = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0, currentEndingTagPosition));
+						this.res = false;
+						RefundXMLInfo.this.paramsAmountReceived++;
+					}
 
-                    if (this.hsh) {
-                        int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                        RefundXMLInfo.this.hash = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0, currentEndingTagPosition));
-                        this.hsh = false;
-                        RefundXMLInfo.this.paramsAmountReceived++;
-                    }
-                }
-            }
+					if (this.hsh) {
+						int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+						RefundXMLInfo.this.hash = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0, currentEndingTagPosition));
+						this.hsh = false;
+						RefundXMLInfo.this.paramsAmountReceived++;
+					}
+				}
+			}
 
-            @Override
-            public void characters(char ch[], int start, int length) throws SAXException {
+			@Override
+			public void characters(char ch[], int start, int length) throws SAXException {
 
-                if (this.setCurrentLine) {
-                    if (this.otid) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
+				if (this.setCurrentLine) {
+					if (this.otid) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
 
-                    if (this.rtid) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
+					if (this.rtid) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
 
-                    if (this.res) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
+					if (this.res) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
 
-                    if (this.hsh) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
-                }
-            }
-        };
+					if (this.hsh) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
+				}
+			}
+		};
 
-        this.errorHandler = new DefaultHandler() {
+		this.errorHandler = new DefaultHandler() {
 
-            boolean res = false;
+			boolean res = false;
 
-            boolean err = false;
+			boolean err = false;
 
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+			@Override
+			public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-                if (qName.equalsIgnoreCase("result")) {
-                    this.res = true;
-                }
+				if (qName.equalsIgnoreCase("result")) {
+					this.res = true;
+				}
 
-                if (qName.equalsIgnoreCase("error-message")) {
-                    this.err = true;
-                }
-            }
+				if (qName.equalsIgnoreCase("error-message")) {
+					this.err = true;
+				}
+			}
 
-            @Override
-            public void characters(char ch[], int start, int length) throws SAXException {
+			@Override
+			public void characters(char ch[], int start, int length) throws SAXException {
 
-                if (this.res) {
-                    RefundXMLInfo.this.result = new String(ch, start, length);
-                    this.res = false;
-                }
+				if (this.res) {
+					RefundXMLInfo.this.result = new String(ch, start, length);
+					this.res = false;
+				}
 
-                if (this.err) {
-                    RefundXMLInfo.this.errorMessage = new String(ch, start, length);
-                    this.err = false;
-                }
-            }
-        };
-    }
+				if (this.err) {
+					RefundXMLInfo.this.errorMessage = new String(ch, start, length);
+					this.err = false;
+				}
+			}
+		};
+	}
 
-    /**
-     * @return the originTransactionId
-     */
-    public String getOriginTransactionId() {
-        return this.originTransactionId;
-    }
+	/**
+	 * @return the originTransactionId
+	 */
+	public String getOriginTransactionId() {
+		return this.originTransactionId;
+	}
 
-    /**
-     * @return the refundTransactionId
-     */
-    public String getRefundTransactionId() {
-        return this.refundTransactionId;
-    }
+	/**
+	 * @return the refundTransactionId
+	 */
+	public String getRefundTransactionId() {
+		return this.refundTransactionId;
+	}
 
-    /**
-     * @return the result
-     */
-    public int getResult() {
-        return Integer.valueOf(this.result);
-    }
+	/**
+	 * @return the result
+	 */
+	public int getResult() {
+		return Integer.valueOf(this.result);
+	}
 
-    /**
-     * @return the hash
-     */
-    public String getHash() {
-        return this.hash;
-    }
+	/**
+	 * @return the hash
+	 */
+	public String getHash() {
+		return this.hash;
+	}
 
-    /**
-     * @return the error
-     */
-    public String getErrorMessage() {
-        return this.errorMessage;
-    }
+	/**
+	 * @return the error
+	 */
+	public String getErrorMessage() {
+		return this.errorMessage;
+	}
 
-    /**
-     * @return the paramsAmountReceived
-     */
-    public int getParamsAmountReceived() {
-        return this.paramsAmountReceived;
-    }
+	/**
+	 * @return the paramsAmountReceived
+	 */
+	public int getParamsAmountReceived() {
+		return this.paramsAmountReceived;
+	}
 }

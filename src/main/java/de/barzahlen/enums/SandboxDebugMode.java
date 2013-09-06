@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/
  *
- * @copyright   Copyright (c) 2012 Zerebro Internet GmbH (http://www.barzahlen.de/)
- * @author      Jesus Javier Nuno Garcia
- * @license     http://opensource.org/licenses/GPL-3.0  GNU General Public License, version 3 (GPL-3.0)
+ * @copyright Copyright (c) 2012 Zerebro Internet GmbH (http://www.barzahlen.de/)
+ * @author Jesus Javier Nuno Garcia
+ * @license http://opensource.org/licenses/GPL-3.0  GNU General Public License, version 3 (GPL-3.0)
  */
 package de.barzahlen.enums;
 
 /**
  * Enumeration for Sandbox or Debug modes.
- * 
+ *
  * @author Jesus Javier Nuno Garcia
  */
 public enum SandboxDebugMode {
-    SANDBOX, DEBUG
+	SANDBOX, DEBUG
 }

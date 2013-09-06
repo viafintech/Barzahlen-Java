@@ -166,7 +166,7 @@ public class Barzahlen {
 		for (String value : template) {
 			String parameter = parameters.get(value);
 
-			if(parameter != null) {
+			if (parameter != null) {
 				message.append(parameter);
 			}
 

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.barzahlen</groupId>
 	<artifactId>barzahlen</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<contributors>
@@ -123,4 +123,15 @@
 			<version>${log4j.version}</version>
 		</dependency>
 	</dependencies>
+
+	<distributionManagement>
+		<repository>
+			<id>keuthen-nexus-releases</id>
+			<url>https://git.kn-development.com/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>keuthen-nexus-snapshots</id>
+			<url>https://git.kn-development.com/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

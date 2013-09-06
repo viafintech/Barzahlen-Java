@@ -15,9 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see http://www.gnu.org/licenses/
  *
- * @copyright   Copyright (c) 2012 Zerebro Internet GmbH (http://www.barzahlen.de/)
- * @author      Jesus Javier Nuno Garcia
- * @license     http://opensource.org/licenses/GPL-3.0  GNU General Public License, version 3 (GPL-3.0)
+ * @copyright Copyright (c) 2012 Zerebro Internet GmbH (http://www.barzahlen.de/)
+ * @author Jesus Javier Nuno Garcia
+ * @license http://opensource.org/licenses/GPL-3.0  GNU General Public License, version 3 (GPL-3.0)
  */
 package de.barzahlen.request.xml;
 
@@ -34,102 +34,100 @@ import java.io.StringReader;
 
 /**
  * Parent class for all xml parsing classes.
- * 
+ *
  * @author Jesus Javier Nuno Garcia
  */
 public abstract class XMLInfo {
 
-    /**
-     * Parser for the xml data
-     */
-    protected SAXParser saxParser;
+	/**
+	 * Parser for the xml data
+	 */
+	protected SAXParser saxParser;
 
-    /**
-     * Shows whether the parsing was success or not.
-     */
-    protected boolean successParsing;
+	/**
+	 * Shows whether the parsing was success or not.
+	 */
+	protected boolean successParsing;
 
-    /**
-     * The number of params the class is supposed to receive.
-     */
-    protected int paramsAmountExpected;
+	/**
+	 * The number of params the class is supposed to receive.
+	 */
+	protected int paramsAmountExpected;
 
-    /**
-     * How many parameters are received in the request.
-     */
-    protected int paramsAmountReceived;
+	/**
+	 * How many parameters are received in the request.
+	 */
+	protected int paramsAmountReceived;
 
-    /**
-     * Handler for normal responses
-     */
-    protected DefaultHandler normalHandler;
+	/**
+	 * Handler for normal responses
+	 */
+	protected DefaultHandler normalHandler;
 
-    /**
-     * Handler for wrong responses
-     */
-    protected DefaultHandler errorHandler;
+	/**
+	 * Handler for wrong responses
+	 */
+	protected DefaultHandler errorHandler;
 
-    /**
-     * Default constructor
-     */
-    public XMLInfo() {
-        try {
-            this.paramsAmountExpected = -1;
-            this.saxParser = SAXParserFactory.newInstance().newSAXParser();
-            this.successParsing = true;
-            this.paramsAmountReceived = 0;
-            initHandlers();
-        } catch (ParserConfigurationException e) {
-            this.successParsing = false;
-        } catch (SAXException e) {
-            this.successParsing = false;
-        }
-    }
+	/**
+	 * Default constructor
+	 */
+	public XMLInfo() {
+		try {
+			this.paramsAmountExpected = -1;
+			this.saxParser = SAXParserFactory.newInstance().newSAXParser();
+			this.successParsing = true;
+			this.paramsAmountReceived = 0;
+			initHandlers();
+		} catch (ParserConfigurationException e) {
+			this.successParsing = false;
+		} catch (SAXException e) {
+			this.successParsing = false;
+		}
+	}
 
-    /**
-     * Reads, loads and prints xml content stored in a string
-     * 
-     * @param content
-     *            The string containing the xml content
-     * @param responseCode
-     *            The response code from the post request
-     * @return True if the response was successful. False otherwise.
-     * @throws IOException
-     * @throws SAXException
-     */
-    public boolean readXMLFile(String content, int responseCode) throws SAXException, IOException {
-        this.paramsAmountReceived = 0;
-        
-        if (responseCode == 200) {
-            this.saxParser.parse(new InputSource(new StringReader(StringEscapeUtils.unescapeHtml(content.trim()))), this.normalHandler);
-            return true;
-        }
+	/**
+	 * Reads, loads and prints xml content stored in a string
+	 *
+	 * @param content      The string containing the xml content
+	 * @param responseCode The response code from the post request
+	 * @return True if the response was successful. False otherwise.
+	 * @throws IOException
+	 * @throws SAXException
+	 */
+	public boolean readXMLFile(String content, int responseCode) throws SAXException, IOException {
+		this.paramsAmountReceived = 0;
 
-        this.saxParser.parse(new InputSource(new StringReader(StringEscapeUtils.unescapeHtml(content.trim()))), this.errorHandler);
-        return false;
-    }
+		if (responseCode == 200) {
+			this.saxParser.parse(new InputSource(new StringReader(StringEscapeUtils.unescapeHtml(content.trim()))), this.normalHandler);
+			return true;
+		}
 
-    /**
-     * Checks the consistency of the parameters received against the parameters
-     * that are suppose to receive.
-     * 
-     * @return True if the amount of parameters are enough. False otherwise.
-     */
-    public boolean checkParameters() {
-        if (this.successParsing) {
-            if (this.paramsAmountExpected != this.paramsAmountReceived) {
-                this.successParsing = false;
-            }
-        }
+		this.saxParser.parse(new InputSource(new StringReader(StringEscapeUtils.unescapeHtml(content.trim()))), this.errorHandler);
+		return false;
+	}
 
-        this.paramsAmountReceived = 0;
-        
-        return this.successParsing;
-    }
+	/**
+	 * Checks the consistency of the parameters received against the parameters
+	 * that are suppose to receive.
+	 *
+	 * @return True if the amount of parameters are enough. False otherwise.
+	 */
+	public boolean checkParameters() {
+		if (this.successParsing) {
+			if (this.paramsAmountExpected != this.paramsAmountReceived) {
+				this.successParsing = false;
+			}
+		}
 
-    /**
-     * Init the handler for successful responses and the handler for erroneous
-     * responses. They should parse the xml tags.
-     */
-    protected abstract void initHandlers();
+		this.paramsAmountReceived = 0;
+
+		return this.successParsing;
+	}
+
+	/**
+	 * Init the handler for successful responses and the handler for erroneous
+	 * responses. They should parse the xml tags.
+	 */
+	protected abstract void initHandlers();
 }

@@ -7,7 +7,7 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  * details. You should have received a copy of the GNU General Public License
  * along with this program. If not, see http://www.gnu.org/licenses/
- * 
+ *
  * @copyright Copyright (c) 2012 Zerebro Internet GmbH
  *            (http://www.barzahlen.de/)
  * @author Jesus Javier Nuno Garcia
@@ -23,212 +23,212 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Parses the XML data retrieved from the server for the "resend email" request
- * 
+ *
  * @author Jesus Javier Nuno Garcia
  */
 public class ResendEmailXMLInfo extends XMLInfo {
 
-    /**
-     * The transaction id
-     */
-    protected String transactionId;
+	/**
+	 * The transaction id
+	 */
+	protected String transactionId;
 
-    /**
-     * Result value
-     */
-    protected String result;
+	/**
+	 * Result value
+	 */
+	protected String result;
 
-    /**
-     * Information hash
-     */
-    protected String hash;
+	/**
+	 * Information hash
+	 */
+	protected String hash;
 
-    /**
-     * The error message in case of bad request
-     */
-    protected String errorMessage;
+	/**
+	 * The error message in case of bad request
+	 */
+	protected String errorMessage;
 
-    /**
-     * Default constructor
-     */
-    public ResendEmailXMLInfo() {
-        super();
-        this.paramsAmountExpected = 3;
-        this.transactionId = "";
-        this.result = "0";
-        this.hash = "";
-        this.errorMessage = "";
-    }
+	/**
+	 * Default constructor
+	 */
+	public ResendEmailXMLInfo() {
+		super();
+		this.paramsAmountExpected = 3;
+		this.transactionId = "";
+		this.result = "0";
+		this.hash = "";
+		this.errorMessage = "";
+	}
 
-    @Override
-    protected void initHandlers() {
-        this.normalHandler = new DefaultHandler() {
+	@Override
+	protected void initHandlers() {
+		this.normalHandler = new DefaultHandler() {
 
-            String currentStartingTag = "";
+			String currentStartingTag = "";
 
-            String currentEndingTag = "";
+			String currentEndingTag = "";
 
-            String currentLine = "";
+			String currentLine = "";
 
-            boolean setCurrentLine = false;
+			boolean setCurrentLine = false;
 
-            boolean tid = false;
+			boolean tid = false;
 
-            boolean res = false;
+			boolean res = false;
 
-            boolean hsh = false;
+			boolean hsh = false;
 
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+			@Override
+			public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-                if (qName.equalsIgnoreCase("transaction-id")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.tid = true;
-                    this.setCurrentLine = true;
-                }
+				if (qName.equalsIgnoreCase("transaction-id")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.tid = true;
+					this.setCurrentLine = true;
+				}
 
-                if (qName.equalsIgnoreCase("result")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.res = true;
-                    this.setCurrentLine = true;
-                }
+				if (qName.equalsIgnoreCase("result")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.res = true;
+					this.setCurrentLine = true;
+				}
 
-                if (qName.equalsIgnoreCase("hash")) {
-                    this.currentStartingTag = "<" + qName + ">";
-                    this.hsh = true;
-                    this.setCurrentLine = true;
-                }
-            }
+				if (qName.equalsIgnoreCase("hash")) {
+					this.currentStartingTag = "<" + qName + ">";
+					this.hsh = true;
+					this.setCurrentLine = true;
+				}
+			}
 
-            @Override
-            public void endElement(String uri, String localName, String qName) throws SAXException {
-                try {
-                    this.currentEndingTag = "<" + qName + ">";
+			@Override
+			public void endElement(String uri, String localName, String qName) throws SAXException {
+				try {
+					this.currentEndingTag = "<" + qName + ">";
 
-                    if (this.currentStartingTag.equals(this.currentEndingTag)) {
-                        if (this.tid) {
-                            int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                            ResendEmailXMLInfo.this.transactionId = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
-                                    currentEndingTagPosition));
-                            this.tid = false;
-                            ResendEmailXMLInfo.this.paramsAmountReceived++;
-                        }
+					if (this.currentStartingTag.equals(this.currentEndingTag)) {
+						if (this.tid) {
+							int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+							ResendEmailXMLInfo.this.transactionId = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
+									currentEndingTagPosition));
+							this.tid = false;
+							ResendEmailXMLInfo.this.paramsAmountReceived++;
+						}
 
-                        if (this.res) {
-                            int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                            ResendEmailXMLInfo.this.result = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
-                                    currentEndingTagPosition));
-                            this.res = false;
-                            ResendEmailXMLInfo.this.paramsAmountReceived++;
-                        }
+						if (this.res) {
+							int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+							ResendEmailXMLInfo.this.result = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
+									currentEndingTagPosition));
+							this.res = false;
+							ResendEmailXMLInfo.this.paramsAmountReceived++;
+						}
 
-                        if (this.hsh) {
-                            int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
-                            ResendEmailXMLInfo.this.hash = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
-                                    currentEndingTagPosition));
-                            this.hsh = false;
-                            ResendEmailXMLInfo.this.paramsAmountReceived++;
-                        }
-                    }
-                } catch (Exception e) {
-                    ResendEmailXMLInfo.this.paramsAmountReceived = -1;
-                }
-            }
+						if (this.hsh) {
+							int currentEndingTagPosition = this.currentLine.indexOf("</" + qName + ">");
+							ResendEmailXMLInfo.this.hash = StringEscapeUtils.unescapeHtml(this.currentLine.substring(0,
+									currentEndingTagPosition));
+							this.hsh = false;
+							ResendEmailXMLInfo.this.paramsAmountReceived++;
+						}
+					}
+				} catch (Exception e) {
+					ResendEmailXMLInfo.this.paramsAmountReceived = -1;
+				}
+			}
 
-            @Override
-            public void characters(char ch[], int start, int length) throws SAXException {
+			@Override
+			public void characters(char ch[], int start, int length) throws SAXException {
 
-                if (this.setCurrentLine) {
-                    if (this.tid) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
+				if (this.setCurrentLine) {
+					if (this.tid) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
 
-                    if (this.res) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
+					if (this.res) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
 
-                    if (this.hsh) {
-                        this.currentLine = new String(ch);
-                        this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
-                                + this.currentStartingTag.length());
-                        this.setCurrentLine = false;
-                    }
-                }
-            }
-        };
+					if (this.hsh) {
+						this.currentLine = new String(ch);
+						this.currentLine = this.currentLine.substring(this.currentLine.indexOf(this.currentStartingTag)
+								+ this.currentStartingTag.length());
+						this.setCurrentLine = false;
+					}
+				}
+			}
+		};
 
-        this.errorHandler = new DefaultHandler() {
+		this.errorHandler = new DefaultHandler() {
 
-            boolean res = false;
+			boolean res = false;
 
-            boolean err = false;
+			boolean err = false;
 
-            @Override
-            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+			@Override
+			public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-                if (qName.equalsIgnoreCase("result")) {
-                    this.res = true;
-                }
+				if (qName.equalsIgnoreCase("result")) {
+					this.res = true;
+				}
 
-                if (qName.equalsIgnoreCase("error-message")) {
-                    this.err = true;
-                }
-            }
+				if (qName.equalsIgnoreCase("error-message")) {
+					this.err = true;
+				}
+			}
 
-            @Override
-            public void characters(char ch[], int start, int length) throws SAXException {
+			@Override
+			public void characters(char ch[], int start, int length) throws SAXException {
 
-                if (this.res) {
-                    ResendEmailXMLInfo.this.result = new String(ch, start, length);
-                    this.res = false;
-                }
+				if (this.res) {
+					ResendEmailXMLInfo.this.result = new String(ch, start, length);
+					this.res = false;
+				}
 
-                if (this.err) {
-                    ResendEmailXMLInfo.this.errorMessage = new String(ch, start, length);
-                    this.err = false;
-                }
-            }
-        };
-    }
+				if (this.err) {
+					ResendEmailXMLInfo.this.errorMessage = new String(ch, start, length);
+					this.err = false;
+				}
+			}
+		};
+	}
 
-    /**
-     * @return the transactionId
-     */
-    public String getTransactionId() {
-        return this.transactionId;
-    }
+	/**
+	 * @return the transactionId
+	 */
+	public String getTransactionId() {
+		return this.transactionId;
+	}
 
-    /**
-     * @return the result
-     */
-    public int getResult() {
-        return Integer.valueOf(this.result);
-    }
+	/**
+	 * @return the result
+	 */
+	public int getResult() {
+		return Integer.valueOf(this.result);
+	}
 
-    /**
-     * @return the hash
-     */
-    public String getHash() {
-        return this.hash;
-    }
+	/**
+	 * @return the hash
+	 */
+	public String getHash() {
+		return this.hash;
+	}
 
-    /**
-     * @return the error
-     */
-    public String getErrorMessage() {
-        return this.errorMessage;
-    }
+	/**
+	 * @return the error
+	 */
+	public String getErrorMessage() {
+		return this.errorMessage;
+	}
 
-    /**
-     * @return the paramsAmountReceived
-     */
-    public int getParamsAmountReceived() {
-        return this.paramsAmountReceived;
-    }
+	/**
+	 * @return the paramsAmountReceived
+	 */
+	public int getParamsAmountReceived() {
+		return this.paramsAmountReceived;
+	}
 }
