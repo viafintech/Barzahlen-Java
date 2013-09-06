@@ -164,7 +164,12 @@ public class Barzahlen {
 		StringBuilder message = new StringBuilder();
 
 		for (String value : template) {
-			message.append(parameters.get(value));
+			String parameter = parameters.get(value);
+
+			if(parameter != null) {
+				message.append(parameter);
+			}
+
 			message.append(";");
 		}
 
