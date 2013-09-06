@@ -38,7 +38,7 @@ public final class CancelRequest extends ServerRequest {
 	/**
 	 * Log file for the logger.
 	 */
-	private static Logger requestLog = Logger.getLogger(CancelRequest.class.getName());
+	private static final Logger requestLog = Logger.getLogger(CancelRequest.class.getName());
 
 	/**
 	 * The xml info retrieved from the server response.
@@ -127,16 +127,9 @@ public final class CancelRequest extends ServerRequest {
 
 	@Override
 	protected boolean compareHashes() {
-		String hash = new String();
+		String data = CancelRequest.XML_INFO.getTransactionId() + ";" + CancelRequest.XML_INFO.getResult() + ";" + this.paymentKey;
+		String hash = calculateHash(data);
 
-		String data = CancelRequest.XML_INFO.getTransactionId() + ";" + CancelRequest.XML_INFO.getResult() + ";"
-				+ this.paymentKey;
-		hash = calculateHash(data);
-
-		if (hash.equals(CancelRequest.XML_INFO.getHash())) {
-			return true;
-		}
-
-		return false;
+		return hash.equals(CancelRequest.XML_INFO.getHash());
 	}
 }

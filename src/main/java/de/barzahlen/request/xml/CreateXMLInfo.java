@@ -74,14 +74,14 @@ public class CreateXMLInfo extends XMLInfo {
     public CreateXMLInfo() {
         super();
         this.paramsAmountExpected = 7;
-        this.transactionId = new String("");
-        this.paymentSlipLink = new String("");
-        this.expirationNotice = new String("");
-        this.infotext1 = new String("");
-        this.infotext2 = new String("");
-        this.result = new String("0");
-        this.hash = new String("");
-        this.errorMessage = new String("");
+        this.transactionId = "";
+        this.paymentSlipLink = "";
+        this.expirationNotice = "";
+        this.infotext1 = "";
+        this.infotext2 = "";
+        this.result = "0";
+        this.hash = "";
+        this.errorMessage = "";
     }
 
     @Override
@@ -346,7 +346,7 @@ public class CreateXMLInfo extends XMLInfo {
      * @return the result
      */
     public int getResult() {
-        return Integer.valueOf(this.result).intValue();
+        return Integer.valueOf(this.result);
     }
 
     /**

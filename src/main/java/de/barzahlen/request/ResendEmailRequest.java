@@ -38,7 +38,7 @@ public final class ResendEmailRequest extends ServerRequest {
     /**
      * Log file for the logger.
      */
-    private static Logger resendEmailRequestLog = Logger.getLogger(ResendEmailRequest.class.getName());
+    private static final Logger resendEmailRequestLog = Logger.getLogger(ResendEmailRequest.class.getName());
 
     /**
      * The xml info retrieved from the server response.
@@ -132,16 +132,10 @@ public final class ResendEmailRequest extends ServerRequest {
 
     @Override
     protected boolean compareHashes() {
-        String hash = new String();
-
         String data = ResendEmailRequest.XML_INFO.getTransactionId() + ";" + ResendEmailRequest.XML_INFO.getResult() + ";"
                 + this.paymentKey;
-        hash = calculateHash(data);
+        String hash = calculateHash(data);
 
-        if (hash.equals(ResendEmailRequest.XML_INFO.getHash())) {
-            return true;
-        }
-
-        return false;
-    }
+		return hash.equals(ResendEmailRequest.XML_INFO.getHash());
+	}
 }

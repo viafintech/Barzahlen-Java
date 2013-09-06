@@ -129,12 +129,12 @@ public abstract class Notification extends Barzahlen {
 	/**
 	 * The server request
 	 */
-	protected HttpServletRequest request;
+	protected final HttpServletRequest request;
 
 	/**
 	 * The server response
 	 */
-	protected HttpServletResponse response;
+	protected final HttpServletResponse response;
 
 	/**
 	 * Constructor with parameters

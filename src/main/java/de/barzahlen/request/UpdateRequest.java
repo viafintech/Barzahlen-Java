@@ -38,7 +38,7 @@ public class UpdateRequest extends ServerRequest {
     /**
      * Log file for the logger.
      */
-    private static Logger updateRequestLog = Logger.getLogger(UpdateRequest.class.getName());
+    private static final Logger updateRequestLog = Logger.getLogger(UpdateRequest.class.getName());
 
     /**
      * The xml info retrieved from the server response.
@@ -149,15 +149,9 @@ public class UpdateRequest extends ServerRequest {
 
     @Override
     protected boolean compareHashes() {
-        String hash = new String();
-
         String data = UpdateRequest.XML_INFO.getTransactionId() + ";" + UpdateRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-        hash = calculateHash(data);
+        String hash = calculateHash(data);
 
-        if (hash.equals(UpdateRequest.XML_INFO.getHash())) {
-            return true;
-        }
-
-        return false;
-    }
+		return hash.equals(UpdateRequest.XML_INFO.getHash());
+	}
 }

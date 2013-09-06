@@ -128,7 +128,7 @@ public abstract class XMLInfo {
     }
 
     /**
-     * Inits the handler for successful responses and the handler for erroneous
+     * Init the handler for successful responses and the handler for erroneous
      * responses. They should parse the xml tags.
      */
     protected abstract void initHandlers();

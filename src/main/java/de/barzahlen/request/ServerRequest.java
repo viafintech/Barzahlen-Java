@@ -43,32 +43,32 @@ public abstract class ServerRequest extends Barzahlen {
     /**
      * Barzahlen transaction state for pending orders
      */
-    public static String BARZAHLEN_ORDER_PENDING;
+    public static final String BARZAHLEN_ORDER_PENDING;
 
     /**
      * Barzahlen transaction state for paid orders
      */
-    public static String BARZAHLEN_ORDER_PAID;
+    public static final String BARZAHLEN_ORDER_PAID;
 
     /**
      * Barzahlen transaction state for expired orders
      */
-    public static String BARZAHLEN_ORDER_EXPIRED;
+    public static final String BARZAHLEN_ORDER_EXPIRED;
 
     /**
      * Barzahlen refund state for pending refunds
      */
-    public static String BARZAHLEN_REFUND_ORDER_PENDING;
+    public static final String BARZAHLEN_REFUND_ORDER_PENDING;
 
     /**
      * Barzahlen refund state for completed refunds
      */
-    public static String BARZAHLEN_REFUND_ORDER_COMPLETED;
+    public static final String BARZAHLEN_REFUND_ORDER_COMPLETED;
 
     /**
      * Barzahlen refund state for expired refunds
      */
-    public static String BARZAHLEN_REFUND_ORDER_EXPIRED;
+    public static final String BARZAHLEN_REFUND_ORDER_EXPIRED;
 
     /**
      * Indicates whether the request should be sent again in case of error or
@@ -221,7 +221,7 @@ public abstract class ServerRequest extends Barzahlen {
      * @throws SAXException
      * @throws Exception
      */
-    protected abstract boolean executeServerRequest(String _targetURL, String _urlParameters) throws IOException, SAXException, Exception;
+    protected abstract boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception;
 
     /**
      * Compares the hash of the data received from the server to the one inside

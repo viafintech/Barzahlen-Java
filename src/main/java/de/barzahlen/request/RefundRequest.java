@@ -38,7 +38,7 @@ public final class RefundRequest extends ServerRequest {
     /**
      * Log file for the logger.
      */
-    private static Logger refundRequestLog = Logger.getLogger(RefundRequest.class.getName());
+    private static final Logger refundRequestLog = Logger.getLogger(RefundRequest.class.getName());
 
     /**
      * The xml info retrieved from the server response.
@@ -140,16 +140,10 @@ public final class RefundRequest extends ServerRequest {
 
     @Override
     protected boolean compareHashes() {
-        String hash = new String();
-
         String data = RefundRequest.XML_INFO.getOriginTransactionId() + ";" + RefundRequest.XML_INFO.getRefundTransactionId() + ";"
                 + RefundRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-        hash = calculateHash(data);
+        String hash = calculateHash(data);
 
-        if (hash.equals(RefundRequest.XML_INFO.getHash())) {
-            return true;
-        }
-
-        return false;
-    }
+		return hash.equals(RefundRequest.XML_INFO.getHash());
+	}
 }

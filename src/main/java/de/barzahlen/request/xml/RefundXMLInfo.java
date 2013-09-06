@@ -59,11 +59,11 @@ public class RefundXMLInfo extends XMLInfo {
     public RefundXMLInfo() {
         super();
         this.paramsAmountExpected = 4;
-        this.originTransactionId = new String("");
-        this.refundTransactionId = new String("");
-        this.result = new String("0");
-        this.hash = new String("");
-        this.errorMessage = new String("");
+        this.originTransactionId = "";
+        this.refundTransactionId = "";
+        this.result = "0";
+        this.hash = "";
+        this.errorMessage = "";
     }
 
     @Override
@@ -239,7 +239,7 @@ public class RefundXMLInfo extends XMLInfo {
      * @return the result
      */
     public int getResult() {
-        return Integer.valueOf(this.result).intValue();
+        return Integer.valueOf(this.result);
     }
 
     /**

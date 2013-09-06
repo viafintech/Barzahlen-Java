@@ -29,7 +29,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 /**
- * Configure the Barzahlen log appenders
+ * Configure the Barzahlen log appender
  * 
  * @author Jesus Javier Nuno Garcia
  */
@@ -51,7 +51,7 @@ public class BarzahlenAppender {
     private PatternLayout patternLayout;
 
     /**
-     * Default constructor. Sets up the appenders.
+     * Default constructor. Sets up the appender.
      */
     public BarzahlenAppender() {
         try {

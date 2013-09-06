@@ -54,10 +54,10 @@ public class ResendEmailXMLInfo extends XMLInfo {
     public ResendEmailXMLInfo() {
         super();
         this.paramsAmountExpected = 3;
-        this.transactionId = new String("");
-        this.result = new String("0");
-        this.hash = new String("");
-        this.errorMessage = new String("");
+        this.transactionId = "";
+        this.result = "0";
+        this.hash = "";
+        this.errorMessage = "";
     }
 
     @Override
@@ -208,7 +208,7 @@ public class ResendEmailXMLInfo extends XMLInfo {
      * @return the result
      */
     public int getResult() {
-        return Integer.valueOf(this.result).intValue();
+        return Integer.valueOf(this.result);
     }
 
     /**

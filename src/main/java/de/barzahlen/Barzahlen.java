@@ -21,6 +21,7 @@
  */
 package de.barzahlen;
 
+import de.barzahlen.enums.SandboxDebugMode;
 import de.barzahlen.logging.BarzahlenAppender;
 
 import java.security.MessageDigest;
@@ -83,11 +84,7 @@ public class Barzahlen {
 	 * Enables either sandbox or debug mode for requests.
 	 */
 	public static void setDebuggingMode(boolean mode) {
-		if (mode) {
-			BARZAHLEN_DEBUGGING_MODE = true;
-		} else {
-			BARZAHLEN_DEBUGGING_MODE = false;
-		}
+		BARZAHLEN_DEBUGGING_MODE = mode;
 	}
 
 	/**
@@ -111,7 +108,7 @@ public class Barzahlen {
 	/**
 	 * The Barzahlen log appender
 	 */
-	protected BarzahlenAppender logAppender;
+	protected final BarzahlenAppender logAppender;
 
 	/**
 	 * The shop identifier.
@@ -192,9 +189,8 @@ public class Barzahlen {
 			md.update(message.getBytes());
 			byte[] mb = md.digest();
 
-			for (int i = 0; i < mb.length; i++) {
-				byte temp = mb[i];
-				String s = Integer.toHexString(new Byte(temp).byteValue());
+			for (byte temp : mb) {
+				String s = Integer.toHexString(temp);
 				while (s.length() < 2) {
 					s = "0" + s;
 				}

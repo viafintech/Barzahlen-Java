@@ -1,12 +1,10 @@
 package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
-import de.barzahlen.SandboxDebugMode;
+import de.barzahlen.enums.SandboxDebugMode;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import static org.junit.Assert.*;
@@ -33,7 +31,7 @@ public class ServerRequestTest {
 		this.serverRequest = new ServerRequest() {
 
 			@Override
-			protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws IOException, SAXException, Exception {
+			protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
 				return false;
 			}
 

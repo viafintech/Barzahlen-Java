@@ -42,7 +42,7 @@ public final class PaymentNotification extends Notification {
 	/**
 	 * Log file for the logger.
 	 */
-	private static Logger paymentNotificationLog = Logger.getLogger(PaymentNotification.class.getName());
+	private static final Logger paymentNotificationLog = Logger.getLogger(PaymentNotification.class.getName());
 
 	/**
 	 * A print writer to show some output in the browser.
@@ -194,7 +194,7 @@ public final class PaymentNotification extends Notification {
 						}
 
 						if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-							paymentNotificationLog.debug("Data received in callback not correct: Customer email not correct.");
+							paymentNotificationLog.debug("Data received in callback not correct: Customer email not correct. (" + this._customerEmail + " vs " + _parameters.get("customer_email") + ")");
 						}
 
 						this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

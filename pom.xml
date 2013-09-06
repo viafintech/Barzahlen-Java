@@ -6,6 +6,20 @@
 	<version>1.0.2</version>
 	<packaging>jar</packaging>
 
+	<contributors>
+		<contributor>
+			<name>Jesus Javier Nuno Garcia</name>
+			<organization>Zerebro Internet GmbH</organization>
+			<organizationUrl>http://www.barzahlen.de/</organizationUrl>
+		</contributor>
+		<contributor>
+			<name>Andreas Buchholz</name>
+			<email>a.buchholz@keuthen.net</email>
+			<organization>Keuthen AG</organization>
+			<organizationUrl>http://www.keuthen.net/</organizationUrl>
+		</contributor>
+	</contributors>
+
 	<properties>
 		<java.version>1.6</java.version>
 		<junit.version>4.10</junit.version>

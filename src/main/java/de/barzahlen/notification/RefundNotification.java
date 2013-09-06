@@ -42,7 +42,7 @@ public final class RefundNotification extends Notification {
     /**
      * Log file for the logger.
      */
-    private static Logger refundNotificationLog = Logger.getLogger(RefundNotification.class.getName());
+    private static final Logger refundNotificationLog = Logger.getLogger(RefundNotification.class.getName());
 
     /**
      * A print writer to show some output in the browser.

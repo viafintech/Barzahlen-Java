@@ -38,7 +38,7 @@ public final class CreateRequest extends ServerRequest {
     /**
      * Log file for the logger.
      */
-    private static Logger createRequestLog = Logger.getLogger(CreateRequest.class.getName());
+    private static final Logger createRequestLog = Logger.getLogger(CreateRequest.class.getName());
 
     /**
      * The xml info retrieved from the server response.
@@ -145,17 +145,11 @@ public final class CreateRequest extends ServerRequest {
 
     @Override
     protected boolean compareHashes() {
-        String hash = new String();
-
         String data = CreateRequest.XML_INFO.getTransactionId() + ";" + CreateRequest.XML_INFO.getPaymentSlipLink() + ";"
                 + CreateRequest.XML_INFO.getExpirationNotice() + ";" + CreateRequest.XML_INFO.getInfotext1() + ";"
                 + CreateRequest.XML_INFO.getInfotext2() + ";" + CreateRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-        hash = calculateHash(data);
+        String hash = calculateHash(data);
 
-        if (hash.equals(CreateRequest.XML_INFO.getHash())) {
-            return true;
-        }
-
-        return false;
-    }
+		return hash.equals(CreateRequest.XML_INFO.getHash());
+	}
 }

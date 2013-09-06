@@ -1,5 +1,6 @@
 package de.barzahlen;
 
+import de.barzahlen.enums.SandboxDebugMode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,18 +51,18 @@ public class BarzahlenTest {
     public void testSetSandboxDebugMode() {
         Barzahlen.setSandboxDebugMode(SandboxDebugMode.SANDBOX);
 
-        assertEquals("Sandbox Urls", "https://api-sandbox-staging.barzahlen.de/v1/transactions/create", Barzahlen.BARZAHLEN_CREATE_URL);
-        assertEquals("Sandbox Urls", "https://api-sandbox-staging.barzahlen.de/v1/transactions/resend_email",
+        assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/create", Barzahlen.BARZAHLEN_CREATE_URL);
+        assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/resend_email",
                 Barzahlen.BARZAHLEN_RESEND_EMAIL_URL);
-        assertEquals("Sandbox Urls", "https://api-sandbox-staging.barzahlen.de/v1/transactions/refund", Barzahlen.BARZAHLEN_REFUND_URL);
-        assertEquals("Sandbox Urls", "https://api-sandbox-staging.barzahlen.de/v1/transactions/update", Barzahlen.BARZAHLEN_UPDATE_URL);
+        assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/refund", Barzahlen.BARZAHLEN_REFUND_URL);
+        assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/update", Barzahlen.BARZAHLEN_UPDATE_URL);
 
         Barzahlen.setSandboxDebugMode(SandboxDebugMode.DEBUG);
 
-        assertEquals("Debug Urls", "https://api-staging.barzahlen.de/v1/transactions/create", Barzahlen.BARZAHLEN_CREATE_URL);
-        assertEquals("Debug Urls", "https://api-staging.barzahlen.de/v1/transactions/resend_email", Barzahlen.BARZAHLEN_RESEND_EMAIL_URL);
-        assertEquals("Debug Urls", "https://api-staging.barzahlen.de/v1/transactions/refund", Barzahlen.BARZAHLEN_REFUND_URL);
-        assertEquals("Debug Urls", "https://api-staging.barzahlen.de/v1/transactions/update", Barzahlen.BARZAHLEN_UPDATE_URL);
+        assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/create", Barzahlen.BARZAHLEN_CREATE_URL);
+        assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/resend_email", Barzahlen.BARZAHLEN_RESEND_EMAIL_URL);
+        assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/refund", Barzahlen.BARZAHLEN_REFUND_URL);
+        assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/update", Barzahlen.BARZAHLEN_UPDATE_URL);
     }
 
     /**
