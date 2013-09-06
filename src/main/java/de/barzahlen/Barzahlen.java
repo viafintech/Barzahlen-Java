@@ -71,11 +71,11 @@ public class Barzahlen {
 	protected static String BARZAHLEN_CANCEL_URL;
 
 	static {
-		BARZAHLEN_CREATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/create";
-		BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/resend_email";
-		BARZAHLEN_REFUND_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/refund";
-		BARZAHLEN_UPDATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/update";
-		BARZAHLEN_CANCEL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/cancel";
+		BARZAHLEN_CREATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/create";
+		BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/resend_email";
+		BARZAHLEN_REFUND_URL = "https://api-sandbox.barzahlen.de/v1/transactions/refund";
+		BARZAHLEN_UPDATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/update";
+		BARZAHLEN_CANCEL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/cancel";
 		BARZAHLEN_DEBUGGING_MODE = true;
 	}
 
@@ -141,18 +141,18 @@ public class Barzahlen {
 	public static void setSandboxDebugMode(SandboxDebugMode mode) {
 		if (mode == SandboxDebugMode.SANDBOX) {
 			sandboxDebugMode = SandboxDebugMode.SANDBOX;
-			BARZAHLEN_CREATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/create";
-			BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/resend_email";
-			BARZAHLEN_REFUND_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/refund";
-			BARZAHLEN_UPDATE_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/update";
-			BARZAHLEN_CANCEL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/cancel";
+			BARZAHLEN_CREATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/create";
+			BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/resend_email";
+			BARZAHLEN_REFUND_URL = "https://api-sandbox.barzahlen.de/v1/transactions/refund";
+			BARZAHLEN_UPDATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/update";
+			BARZAHLEN_CANCEL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/cancel";
 		} else if (mode == SandboxDebugMode.DEBUG) {
 			sandboxDebugMode = SandboxDebugMode.DEBUG;
-			BARZAHLEN_CREATE_URL = "https://api-staging.barzahlen.de/v1/transactions/create";
-			BARZAHLEN_RESEND_EMAIL_URL = "https://api-staging.barzahlen.de/v1/transactions/resend_email";
-			BARZAHLEN_REFUND_URL = "https://api-staging.barzahlen.de/v1/transactions/refund";
-			BARZAHLEN_UPDATE_URL = "https://api-staging.barzahlen.de/v1/transactions/update";
-			BARZAHLEN_CANCEL_URL = "https://api-sandbox-staging.barzahlen.de/v1/transactions/cancel";
+			BARZAHLEN_CREATE_URL = "https://api.barzahlen.de/v1/transactions/create";
+			BARZAHLEN_RESEND_EMAIL_URL = "https://api.barzahlen.de/v1/transactions/resend_email";
+			BARZAHLEN_REFUND_URL = "https://api.barzahlen.de/v1/transactions/refund";
+			BARZAHLEN_UPDATE_URL = "https://api.barzahlen.de/v1/transactions/update";
+			BARZAHLEN_CANCEL_URL = "https://api.barzahlen.de/v1/transactions/cancel";
 		}
 	}
 
