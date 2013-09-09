@@ -22,6 +22,8 @@
 package de.barzahlen.request.xml;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -38,6 +40,9 @@ import java.io.StringReader;
  * @author Jesus Javier Nuno Garcia
  */
 public abstract class XMLInfo {
+
+	private static final Logger logger = LoggerFactory.getLogger(XMLInfo.class);
+	private static final int NUM_ESCAPING_ITERATIONS = 2;
 
 	/**
 	 * Parser for the xml data
@@ -99,7 +104,17 @@ public abstract class XMLInfo {
 		this.paramsAmountReceived = 0;
 
 		if (responseCode == 200) {
-			this.saxParser.parse(new InputSource(new StringReader(StringEscapeUtils.unescapeHtml(content.trim()))), this.normalHandler);
+			String escapedHtml = content.trim();
+
+			// Escape multiple times to convert string like "&amp;uuml;" to "&uuml;" to a "ü"
+			for (int i = 0; i < NUM_ESCAPING_ITERATIONS; i++) {
+				escapedHtml = StringEscapeUtils.unescapeHtml(escapedHtml);
+			}
+
+			StringReader stringReader = new StringReader(escapedHtml);
+			InputSource inputSource = new InputSource(stringReader);
+
+			this.saxParser.parse(inputSource, this.normalHandler);
 			return true;
 		}
 
