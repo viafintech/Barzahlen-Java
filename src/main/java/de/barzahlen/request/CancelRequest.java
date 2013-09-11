@@ -23,8 +23,13 @@ package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
 import de.barzahlen.BarzahlenApiRequest;
-import de.barzahlen.request.xml.CancelXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
+import de.barzahlen.response.CancelResponse;
+import de.barzahlen.response.ErrorResponse;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -38,38 +43,21 @@ public final class CancelRequest extends ServerRequest {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger requestLog = Logger.getLogger(CancelRequest.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CancelRequest.class);
 
 	/**
 	 * The xml info retrieved from the server response.
 	 */
-	public static CancelXMLInfo XML_INFO;
+	private CancelResponse cancelResponse = null;
 
-	static {
-		XML_INFO = new CancelXMLInfo();
-	}
-
-	/**
-	 * Default constructor.
-	 */
-	public CancelRequest() {
-		super();
-		requestLog.addAppender(this.logAppender.getConsoleAppender());
-		requestLog.addAppender(this.logAppender.getFileAppender());
-	}
+	private boolean successful = false;
+	private BarzahlenApiRequest request = null;
 
 	/**
 	 * Constructor with parameters for the "cancel" request
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
 	 */
-	public CancelRequest(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		super(_sandbox, _shopId, _paymentKey, _notificationKey);
-		requestLog.addAppender(this.logAppender.getConsoleAppender());
-		requestLog.addAppender(this.logAppender.getFileAppender());
+	public CancelRequest(Configuration configuration) {
+		super(configuration);
 	}
 
 	/**
@@ -97,39 +85,49 @@ public final class CancelRequest extends ServerRequest {
 
 	@Override
 	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, CancelRequest.XML_INFO);
-		boolean successful = request.doRequest(_urlParameters);
+		request = new BarzahlenApiRequest(_targetURL, CancelResponse.class);
+		successful = request.doRequest(_urlParameters);
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-			requestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
+		if (isSandboxMode()) {
+			logger.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
 					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
-			requestLog.debug(request.getResult());
-			requestLog.debug(CancelRequest.XML_INFO.getTransactionId());
-			requestLog.debug(String.valueOf(CancelRequest.XML_INFO.getResult()));
-			requestLog.debug(CancelRequest.XML_INFO.getHash());
+			logger.debug(request.getResult());
+
+			if (successful) {
+				cancelResponse = (CancelResponse) request.getResponse();
+
+				logger.debug(cancelResponse.getTransactionId());
+				logger.debug(cancelResponse.getHash());
+				logger.debug(String.valueOf(cancelResponse.getResult()));
+			}
 		}
 
 		if (!successful) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, requestLog,
-					"Cancel request failed - retry", "Error received from the server. Response code: " + request.getResponseCode()
-					+ ". Response message: " + request.getResponseMessage());
-		} else if (!CancelRequest.XML_INFO.checkParameters()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, requestLog,
-					"Cancel request failed - retry", "There are errors with parameters received from the server.");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Cancel request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, requestLog,
-					"Cancel request failed - retry", "Data received is not correct (hashes do not match)");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Cancel request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
+
+			cancelResponse = (CancelResponse) request.getResponse();
+
 			return true;
 		}
 	}
 
 	@Override
 	protected boolean compareHashes() {
-		String data = CancelRequest.XML_INFO.getTransactionId() + ";" + CancelRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-		String hash = calculateHash(data);
+		String data = cancelResponse.getTransactionId() + ";" + cancelResponse.getResult() + ";" + getPaymentKey();
+		String hash = HashTools.getHash(data);
 
-		return hash.equals(CancelRequest.XML_INFO.getHash());
+		return hash.equals(cancelResponse.getHash());
+	}
+
+	public CancelResponse getCancelResponse() {
+		return cancelResponse;
+	}
+
+	public ErrorResponse getErrorResponse() {
+		return (ErrorResponse) request.getResponse();
 	}
 }

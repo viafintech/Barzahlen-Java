@@ -22,7 +22,11 @@
 package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
+import de.barzahlen.exceptions.RequestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -34,6 +38,8 @@ import java.util.HashMap;
  * @author Jesus Javier Nuno Garcia
  */
 public abstract class ServerRequest extends Barzahlen {
+
+	private static final Logger logger = LoggerFactory.getLogger(ServerRequest.class);
 
 	/**
 	 * Keeps track of the errors with the server requests.
@@ -88,24 +94,10 @@ public abstract class ServerRequest extends Barzahlen {
 	}
 
 	/**
-	 * Default constructor
-	 */
-	public ServerRequest() {
-		super();
-	}
-
-	/**
 	 * Constructor with parameters
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
 	 */
-	public ServerRequest(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		super();
-		setParameters(_sandbox, _shopId, _paymentKey, _notificationKey);
-		setDebuggingMode(true);
+	public ServerRequest(Configuration configuration) {
+		super(configuration);
 	}
 
 	/**
@@ -136,32 +128,30 @@ public abstract class ServerRequest extends Barzahlen {
 	 * @param _targetURL     The url to retry the request
 	 * @param _urlParameters The parameters for the url to retry the request
 	 * @param _errorCode     The error code
-	 * @param _logger        The log, in order to log details when debugging is enabled
 	 * @param _errorMessage1 The error message to show when first request fails
 	 * @param _errorMessage2 The error message to show when second request fails
-	 * @return True if the request is successful. An exception is thrown
-	 *         otherwise
+	 * @return True if the request is successful. An exception is thrown otherwise
 	 * @throws Exception
 	 */
-	protected boolean errorAction(String _targetURL, String _urlParameters, RequestErrorCode _errorCode, Logger _logger,
-								  String _errorMessage1, String _errorMessage2) throws Exception {
+	protected boolean errorAction(String _targetURL, String _urlParameters, RequestErrorCode _errorCode, String _errorMessage1, String _errorMessage2) throws Exception {
 		if (ServerRequest.BARZAHLEN_REQUEST_RETRY) {
+			logger.warn("Request to Barzahlen failed, try to retry");
 			ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-			if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-				_logger.debug(_errorMessage1);
+
+			if (isSandboxMode()) {
+				logger.debug("Retrying call to {}", _targetURL);
+				logger.debug("Error message 1 {}", _errorMessage1);
+				logger.debug("Error message 2 {}", _errorMessage2);
 			}
 
 			return executeServerRequest(_targetURL, _urlParameters);
 		}
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-			_logger.debug(_errorMessage2);
-		}
-
+		// retry did not help
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = true;
 		BARZAHLEN_REQUEST_ERROR_CODE = _errorCode;
 
-		throw new Exception(_errorMessage2);
+		throw new RequestException(_errorMessage2);
 	}
 
 	/**
@@ -173,8 +163,8 @@ public abstract class ServerRequest extends Barzahlen {
 	protected String assembleParameters(HashMap<String, String> _parameters) {
 		HashMap<String, String> parameters = new HashMap<String, String>(_parameters);
 
-		parameters.put("shop_id", this.shopId);
-		parameters.put("payment_key", this.paymentKey);
+		parameters.put("shop_id", getShopId());
+		parameters.put("payment_key", getPaymentKey());
 
 		String hash = createHash(getParametersTemplate(), parameters);
 

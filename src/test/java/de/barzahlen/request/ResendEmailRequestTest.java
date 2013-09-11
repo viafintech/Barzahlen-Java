@@ -1,16 +1,13 @@
 package de.barzahlen.request;
 
-import de.barzahlen.request.xml.ResendEmailXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the ResendEmailRequest class
@@ -32,8 +29,8 @@ public class ResendEmailRequestTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.resendEmailRequest = new ResendEmailRequest(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		this.resendEmailRequest = new ResendEmailRequest(configuration);
 	}
 
 	/**
@@ -73,35 +70,13 @@ public class ResendEmailRequestTest {
 	}
 
 	/**
-	 * Tests the method that compare two hashes
-	 */
-	@Test
-	public void testCompareHashes() {
-		try {
-			ResendEmailRequest.XML_INFO = new ResendEmailXMLInfo();
-			String test = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			test += "<response>\n";
-			test += "<transaction-id>19449282</transaction-id>\n";
-			test += "<result>0</result>\n";
-			test += "<hash>d3650a67d54da5ec6193a9bca08f4954db8038ed1d5b108553d7f5e37989f548cf9ddc39d3223485f5255b5b379c443725552887a0b63fe4e12ae4a99a2a0fce</hash>\n";
-			test += "</response>";
-			ResendEmailRequest.XML_INFO.readXMLFile(test, 200);
-			assertTrue("Compare Hashes", this.resendEmailRequest.compareHashes());
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Tests the method that executes the error action with a xml error (1)
 	 *
 	 * @throws Exception
 	 */
 	@Test(expected = Exception.class)
 	public void testErrorActionXML1() throws Exception {
-		this.resendEmailRequest.errorAction("", "", RequestErrorCode.XML_ERROR, Logger.getLogger(ResendEmailRequestTest.class),
+		this.resendEmailRequest.errorAction("", "", RequestErrorCode.XML_ERROR,
 				"XML error message 1", "XML error message 2");
 	}
 
@@ -113,7 +88,7 @@ public class ResendEmailRequestTest {
 	@Test(expected = Exception.class)
 	public void testErrorActionXML2() throws Exception {
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-		this.resendEmailRequest.errorAction("", "", RequestErrorCode.XML_ERROR, Logger.getLogger(ResendEmailRequestTest.class),
+		this.resendEmailRequest.errorAction("", "", RequestErrorCode.XML_ERROR,
 				"XML error message 1", "XML error message 2");
 	}
 
@@ -125,7 +100,7 @@ public class ResendEmailRequestTest {
 	 */
 	@Test(expected = Exception.class)
 	public void testErrorActionParameters1() throws Exception {
-		this.resendEmailRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR, Logger.getLogger(ResendEmailRequestTest.class),
+		this.resendEmailRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR,
 				"Parameters error message 1", "Parameters error message 2");
 	}
 
@@ -137,7 +112,7 @@ public class ResendEmailRequestTest {
 	@Test(expected = Exception.class)
 	public void testErrorActionParameters2() throws Exception {
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-		this.resendEmailRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR, Logger.getLogger(ResendEmailRequestTest.class),
+		this.resendEmailRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR,
 				"Parameters error message 1", "Parameters error message 2");
 	}
 
@@ -148,7 +123,7 @@ public class ResendEmailRequestTest {
 	 */
 	@Test(expected = Exception.class)
 	public void testErrorActionHash1() throws Exception {
-		this.resendEmailRequest.errorAction("", "", RequestErrorCode.HASH_ERROR, Logger.getLogger(ResendEmailRequestTest.class),
+		this.resendEmailRequest.errorAction("", "", RequestErrorCode.HASH_ERROR,
 				"Hash error message 1", "Hash error message 2");
 	}
 
@@ -160,7 +135,7 @@ public class ResendEmailRequestTest {
 	@Test(expected = Exception.class)
 	public void testErrorActionHash2() throws Exception {
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-		this.resendEmailRequest.errorAction("", "", RequestErrorCode.HASH_ERROR, Logger.getLogger(ResendEmailRequestTest.class),
+		this.resendEmailRequest.errorAction("", "", RequestErrorCode.HASH_ERROR,
 				"Hash error message 1", "Hash error message 2");
 	}
 }

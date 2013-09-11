@@ -23,8 +23,13 @@ package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
 import de.barzahlen.BarzahlenApiRequest;
-import de.barzahlen.request.xml.RefundXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
+import de.barzahlen.response.ErrorResponse;
+import de.barzahlen.response.RefundResponse;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -38,38 +43,20 @@ public final class RefundRequest extends ServerRequest {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger refundRequestLog = Logger.getLogger(RefundRequest.class.getName());
+	private static final Logger refundRequestLog = LoggerFactory.getLogger(RefundRequest.class);
 
 	/**
 	 * The xml info retrieved from the server response.
 	 */
-	public static RefundXMLInfo XML_INFO;
-
-	static {
-		XML_INFO = new RefundXMLInfo();
-	}
-
-	/**
-	 * Default constructor
-	 */
-	public RefundRequest() {
-		super();
-		refundRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		refundRequestLog.addAppender(this.logAppender.getFileAppender());
-	}
+	private RefundResponse refundResponse;
+	private BarzahlenApiRequest request;
+	private boolean successful = false;
 
 	/**
 	 * Constructor with parameters for the "refund" request
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
 	 */
-	public RefundRequest(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		super(_sandbox, _shopId, _paymentKey, _notificationKey);
-		refundRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		refundRequestLog.addAppender(this.logAppender.getFileAppender());
+	public RefundRequest(Configuration configuration) {
+		super(configuration);
 	}
 
 	/**
@@ -99,46 +86,51 @@ public final class RefundRequest extends ServerRequest {
 
 	@Override
 	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, RefundRequest.XML_INFO);
-		boolean successful = request.doRequest(_urlParameters);
+		request = new BarzahlenApiRequest(_targetURL, RefundResponse.class);
+		successful = request.doRequest(_urlParameters);
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
+		if (isSandboxMode()) {
 			refundRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
 					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
 			refundRequestLog.debug(request.getResult());
-			refundRequestLog.debug(RefundRequest.XML_INFO.getOriginTransactionId());
-			refundRequestLog.debug(RefundRequest.XML_INFO.getRefundTransactionId());
-			refundRequestLog.debug(String.valueOf(RefundRequest.XML_INFO.getResult()));
-			refundRequestLog.debug(RefundRequest.XML_INFO.getHash());
+
+			if (successful) {
+				refundResponse = (RefundResponse) request.getResponse();
+
+				refundRequestLog.debug(refundResponse.getOriginTransactionId());
+				refundRequestLog.debug(refundResponse.getRefundTransactionId());
+				refundRequestLog.debug(String.valueOf(refundResponse.getResult()));
+				refundRequestLog.debug(refundResponse.getHash());
+			}
 		}
 
 		if (!successful) {
-			return errorAction(
-					_targetURL,
-					_urlParameters,
-					RequestErrorCode.XML_ERROR,
-					refundRequestLog,
-					"Refund request failed - retry",
-					"Error received from the server. Response code: " + request.getResponseCode() + ". Response message: "
-							+ request.getResponseMessage());
-		} else if (!RefundRequest.XML_INFO.checkParameters()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, refundRequestLog,
-					"Refund request failed - retry", "There are errors with parameters received from the server.");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Refund request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, refundRequestLog, "Refund request failed - retry",
-					"Data received is not correct (hashes do not match)");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Refund request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
+
+			refundResponse = (RefundResponse) request.getResponse();
+
 			return true;
 		}
 	}
 
 	@Override
 	protected boolean compareHashes() {
-		String data = RefundRequest.XML_INFO.getOriginTransactionId() + ";" + RefundRequest.XML_INFO.getRefundTransactionId() + ";"
-				+ RefundRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-		String hash = calculateHash(data);
+		String data = refundResponse.getOriginTransactionId() + ";" + refundResponse.getRefundTransactionId() + ";"
+				+ refundResponse.getResult() + ";" + getPaymentKey();
+		String hash = HashTools.getHash(data);
 
-		return hash.equals(RefundRequest.XML_INFO.getHash());
+		return hash.equals(refundResponse.getHash());
+	}
+
+	public RefundResponse getRefundResponse() {
+		return refundResponse;
+	}
+
+	public ErrorResponse getErrorResponse() {
+		return (ErrorResponse) request.getResponse();
 	}
 }

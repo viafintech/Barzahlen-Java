@@ -1,6 +1,7 @@
 package de.barzahlen.notification;
 
-import de.barzahlen.Barzahlen;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.configuration.NotificationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -60,14 +61,13 @@ public class PaymentNotificationTest {
 		Mockito.when(this.mockRequest.getParameter("amount")).thenReturn("1.00");
 		Mockito.when(this.mockRequest.getParameter("currency")).thenReturn("EUR");
 		Mockito.when(this.mockRequest.getParameter("order_id")).thenReturn("641");
-		Mockito.when(this.mockRequest.getParameter("hash"))
-				.thenReturn(
-						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
+		Mockito.when(this.mockRequest.getParameter("hash")).thenReturn("4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -99,10 +99,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -134,10 +135,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -169,10 +171,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -204,10 +207,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -239,10 +243,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -274,10 +279,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -309,10 +315,11 @@ public class PaymentNotificationTest {
 				.thenReturn(
 						"4335cdd747d369867882b8e8b9f7ea7fcffc095cace517e6ec6bc8708f7b38c17cf8a2abeaa82b882036aeb4e362cd417a37d76802ce4c3ac7fdedbce06d96ea");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");
@@ -342,10 +349,11 @@ public class PaymentNotificationTest {
 		Mockito.when(this.mockRequest.getParameter("order_id")).thenReturn("641");
 		Mockito.when(this.mockRequest.getParameter("hash")).thenReturn("");
 
-		this.paymentNotification = new PaymentNotification(this.mockRequest, this.mockResponse);
-		this.paymentNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.paymentNotification = new PaymentNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("barzahlen_transaction_id", "22136907");

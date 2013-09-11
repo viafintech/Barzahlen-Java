@@ -23,8 +23,13 @@ package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
 import de.barzahlen.BarzahlenApiRequest;
-import de.barzahlen.request.xml.CreateXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
+import de.barzahlen.response.CreateResponse;
+import de.barzahlen.response.ErrorResponse;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -38,38 +43,21 @@ public final class CreateRequest extends ServerRequest {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger createRequestLog = Logger.getLogger(CreateRequest.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(CreateRequest.class);
 
 	/**
 	 * The xml info retrieved from the server response.
 	 */
-	public static CreateXMLInfo XML_INFO;
+	private CreateResponse createResponse;
 
-	static {
-		XML_INFO = new CreateXMLInfo();
-	}
-
-	/**
-	 * Default constructor.
-	 */
-	public CreateRequest() {
-		super();
-		createRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		createRequestLog.addAppender(this.logAppender.getFileAppender());
-	}
+	private BarzahlenApiRequest request;
+	private boolean successful;
 
 	/**
 	 * Constructor with parameters for the "create" request
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
 	 */
-	public CreateRequest(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		super(_sandbox, _shopId, _paymentKey, _notificationKey);
-		createRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		createRequestLog.addAppender(this.logAppender.getFileAppender());
+	public CreateRequest(Configuration configuration) {
+		super(configuration);
 	}
 
 	/**
@@ -106,45 +94,61 @@ public final class CreateRequest extends ServerRequest {
 
 	@Override
 	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, CreateRequest.XML_INFO);
-		boolean successful = request.doRequest(_urlParameters);
+		request = new BarzahlenApiRequest(_targetURL, CreateResponse.class);
+		successful = request.doRequest(_urlParameters);
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-			createRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
+		if (isSandboxMode()) {
+			logger.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
 					+ ". Parameters sent: " + ServerRequest.formatReadableParameters(_urlParameters));
-			createRequestLog.debug(request.getResult());
-			createRequestLog.debug(CreateRequest.XML_INFO.getTransactionId());
-			createRequestLog.debug(CreateRequest.XML_INFO.getPaymentSlipLink());
-			createRequestLog.debug(CreateRequest.XML_INFO.getExpirationNotice());
-			createRequestLog.debug(CreateRequest.XML_INFO.getInfotext1());
-			createRequestLog.debug(CreateRequest.XML_INFO.getInfotext2());
-			createRequestLog.debug(String.valueOf(CreateRequest.XML_INFO.getResult()));
-			createRequestLog.debug(CreateRequest.XML_INFO.getHash());
+
+			logger.debug(request.getResult());
+
+			if (successful) {
+				createResponse = (CreateResponse) request.getResponse();
+
+				logger.debug(createResponse.getTransactionId());
+				logger.debug(createResponse.getPaymentSlipLink());
+				logger.debug(createResponse.getExpirationNotice());
+				logger.debug(createResponse.getInfotext1());
+				logger.debug(createResponse.getInfotext2());
+				logger.debug(String.valueOf(createResponse.getResult()));
+				logger.debug(createResponse.getHash());
+			}
 		}
 
 		if (!successful) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, createRequestLog,
-					"Payment slip request failed - retry", "Error received from the server. Response code: " + request.getResponseCode()
-					+ ". Response message: " + request.getResponseMessage());
-		} else if (!CreateRequest.XML_INFO.checkParameters()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, createRequestLog,
-					"Payment slip request failed - retry", "There are errors with parameters received from the server.");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Payment slip request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, createRequestLog,
-					"Payment slip request failed - retry", "Data received is not correct (hashes do not match)");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Payment slip request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
+
+			createResponse = (CreateResponse) request.getResponse();
+
 			return true;
 		}
 	}
 
 	@Override
 	protected boolean compareHashes() {
-		String data = CreateRequest.XML_INFO.getTransactionId() + ";" + CreateRequest.XML_INFO.getPaymentSlipLink() + ";"
-				+ CreateRequest.XML_INFO.getExpirationNotice() + ";" + CreateRequest.XML_INFO.getInfotext1() + ";"
-				+ CreateRequest.XML_INFO.getInfotext2() + ";" + CreateRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-		String hash = calculateHash(data);
+		String data = createResponse.getTransactionId() + ";" + createResponse.getPaymentSlipLink() + ";"
+				+ createResponse.getExpirationNotice() + ";" + createResponse.getInfotext1() + ";"
+				+ createResponse.getInfotext2() + ";" + createResponse.getResult() + ";" + getPaymentKey();
+		String hash = HashTools.getHash(data);
 
-		return hash.equals(CreateRequest.XML_INFO.getHash());
+		if (isSandboxMode()) {
+			logger.debug("Calculated hash: " + hash);
+			logger.debug("Received hash  : " + createResponse.getHash());
+		}
+
+		return hash.equals(createResponse.getHash());
+	}
+
+	public CreateResponse getCreateResponse() {
+		return createResponse;
+	}
+
+	public ErrorResponse getErrorResponse() {
+		return (ErrorResponse) request.getResponse();
 	}
 }

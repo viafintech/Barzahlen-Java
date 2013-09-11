@@ -21,11 +21,12 @@
  */
 package de.barzahlen.notification;
 
-import de.barzahlen.Barzahlen;
+import de.barzahlen.configuration.NotificationConfiguration;
 import de.barzahlen.request.ServerRequest;
-import org.apache.log4j.Logger;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,7 +43,7 @@ public final class PaymentNotification extends Notification {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger paymentNotificationLog = Logger.getLogger(PaymentNotification.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(PaymentNotification.class);
 
 	/**
 	 * A print writer to show some output in the browser.
@@ -107,14 +108,11 @@ public final class PaymentNotification extends Notification {
 	/**
 	 * Constructor with parameters
 	 *
-	 * @param _request  The request received from the server
-	 * @param _response The response associated with the server
 	 * @throws IOException
 	 */
-	public PaymentNotification(HttpServletRequest _request, HttpServletResponse _response) throws IOException {
-		super(_request, _response);
-		paymentNotificationLog.addAppender(this.logAppender.getConsoleAppender());
-		paymentNotificationLog.addAppender(this.logAppender.getFileAppender());
+	public PaymentNotification(NotificationConfiguration notificationConfiguration) throws IOException {
+		super(notificationConfiguration);
+
 		this.outStream = this.response.getWriter();
 		this._state = this.request.getParameter(STATE);
 		this._transactionId = this.request.getParameter(TRANSACTION_ID);
@@ -133,12 +131,12 @@ public final class PaymentNotification extends Notification {
 	public boolean checkNotification(HashMap<String, String> _parameters) throws Exception {
 		String message = this._state + ";" + this._transactionId + ";" + this._shopId + ";" + this._customerEmail + ";" + this._amount
 				+ ";" + this._currency + ";" + this._orderId + ";" + this._customVar0 + ";" + this._customVar1 + ";" + this._customVar2
-				+ ";" + this.notificationKey;
+				+ ";" + this.getNotificationKey();
 
 		this.response.setStatus(HttpServletResponse.SC_OK);
 
 		// Check if everything is ok
-		if (this.shopId.equals(this._shopId)) {
+		if (getShopId().equals(this._shopId)) {
 
 			if (this._state.equals(ServerRequest.BARZAHLEN_ORDER_PAID) || this._state.equals(ServerRequest.BARZAHLEN_ORDER_EXPIRED)) {
 
@@ -156,13 +154,13 @@ public final class PaymentNotification extends Notification {
 
 								if (am.equals(_am)) {
 
-									if (Barzahlen.calculateHash(message).equals(this._hash)) {
+									if (HashTools.getHash(message).equals(this._hash)) {
 										BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.SUCCESS;
 										return true;
 									}
 
-									if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-										paymentNotificationLog.debug("Data received in callback not correct: Hash not correct.");
+									if (isSandboxMode()) {
+										logger.debug("Data received in callback not correct: Hash not correct.");
 									}
 
 									this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -171,8 +169,8 @@ public final class PaymentNotification extends Notification {
 									throw new Exception("Data received in callback not correct: Hash not correct.");
 								}
 
-								if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-									paymentNotificationLog.debug("Data received in callback not correct: Amount not correct.");
+								if (isSandboxMode()) {
+									logger.debug("Data received in callback not correct: Amount not correct.");
 								}
 
 								this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -182,8 +180,8 @@ public final class PaymentNotification extends Notification {
 
 							}
 
-							if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-								paymentNotificationLog.debug("Data received in callback not correct: Currency not correct.");
+							if (isSandboxMode()) {
+								logger.debug("Data received in callback not correct: Currency not correct.");
 							}
 
 							this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -193,8 +191,8 @@ public final class PaymentNotification extends Notification {
 
 						}
 
-						if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-							paymentNotificationLog.debug("Data received in callback not correct: Customer email not correct. (" + this._customerEmail + " vs " + _parameters.get("customer_email") + ")");
+						if (isSandboxMode()) {
+							logger.debug("Data received in callback not correct: Customer email not correct. (" + this._customerEmail + " vs " + _parameters.get("customer_email") + ")");
 						}
 
 						this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -204,8 +202,8 @@ public final class PaymentNotification extends Notification {
 
 					}
 
-					if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-						paymentNotificationLog.debug("Database doesn't have the barzahlen transaction state set to \"pending\".");
+					if (isSandboxMode()) {
+						logger.debug("Database doesn't have the barzahlen transaction state set to \"pending\".");
 					}
 
 					this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -215,8 +213,8 @@ public final class PaymentNotification extends Notification {
 
 				}
 
-				if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-					paymentNotificationLog.debug("Data received in callback not correct: Transaction ID not correct.");
+				if (isSandboxMode()) {
+					logger.debug("Data received in callback not correct: Transaction ID not correct.");
 				}
 
 				this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -226,9 +224,8 @@ public final class PaymentNotification extends Notification {
 
 			}
 
-			if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-				paymentNotificationLog
-						.debug("Data received in callback not correct: The transaction state is neither \"paid\" nor \"expired\".");
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: The transaction state is neither \"paid\" nor \"expired\".");
 			}
 
 			this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -238,8 +235,8 @@ public final class PaymentNotification extends Notification {
 
 		}
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-			paymentNotificationLog.debug("Data received is not correct (shop id is incorrect).");
+		if (isSandboxMode()) {
+			logger.debug("Data received is not correct (shop id is incorrect).");
 		}
 
 		this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

@@ -1,6 +1,10 @@
 package de.barzahlen;
 
-import de.barzahlen.request.xml.XMLInfo;
+import de.barzahlen.response.ErrorResponse;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
@@ -10,18 +14,23 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class BarzahlenApiRequest {
+
+	private static final Logger logger = LoggerFactory.getLogger(BarzahlenApiRequest.class);
+
 	private final String targetUrl;
 
+	private Class responseClass = null;
+	private Object response = null;
+
 	private HttpsURLConnection httpCon;
-	private final XMLInfo xmlInfo;
 
 	private int responseCode;
 	private String responseMessage;
 	private String result;
 
-	public BarzahlenApiRequest(String targetUrl, XMLInfo xmlInfo) {
+	public BarzahlenApiRequest(String targetUrl, Class responseClass) {
 		this.targetUrl = targetUrl;
-		this.xmlInfo = xmlInfo;
+		this.responseClass = responseClass;
 	}
 
 	public boolean doRequest(String parameters) throws Exception {
@@ -29,7 +38,18 @@ public class BarzahlenApiRequest {
 		transferParameters(parameters);
 		transferResult();
 
-		return xmlInfo.readXMLFile(result, responseCode);
+		Serializer serializer = new Persister();
+
+		if (responseCode == 200) {
+			response = serializer.read(responseClass, result);
+
+			return true;
+		} else {
+			// invoke error response bean
+			response = serializer.read(ErrorResponse.class, result);
+
+			return false;
+		}
 	}
 
 	private void transferResult() throws IOException {
@@ -48,6 +68,10 @@ public class BarzahlenApiRequest {
 		result = s.hasNext() ? s.next() : "";
 
 		resultStream.close();
+	}
+
+	public Object getResponse() {
+		return response;
 	}
 
 	public int getResponseCode() {

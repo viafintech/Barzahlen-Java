@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.barzahlen</groupId>
 	<artifactId>barzahlen</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<contributors>
@@ -26,10 +26,11 @@
 		<logback.version>1.0.7</logback.version>
 		<slf4j.version>1.7.2</slf4j.version>
 		<commons-lang.version>2.4</commons-lang.version>
+		<commons-codec.version>1.8</commons-codec.version>
 		<easymock.version>3.1</easymock.version>
 		<mockito.version>1.9.5</mockito.version>
 		<servlet.version>3.0.20100224</servlet.version>
-		<log4j.version>1.2.12</log4j.version>
+		<simplexml.version>2.7.1</simplexml.version>
 	</properties>
 
 	<build>
@@ -118,9 +119,14 @@
 			<version>${servlet.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>org.simpleframework</groupId>
+			<artifactId>simple-xml</artifactId>
+			<version>${simplexml.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>${commons-codec.version}</version>
 		</dependency>
 	</dependencies>
 </project>

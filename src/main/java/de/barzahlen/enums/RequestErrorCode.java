@@ -22,10 +22,10 @@
 package de.barzahlen.enums;
 
 /**
- * Enumeration for Sandbox or Debug modes.
+ * Enumeration for error codes in server requests.
  *
  * @author Jesus Javier Nuno Garcia
  */
-public enum SandboxDebugMode {
-	SANDBOX, DEBUG
+public enum RequestErrorCode {
+	XML_ERROR, PARAMETERS_ERROR, HASH_ERROR, SUCCESS
 }

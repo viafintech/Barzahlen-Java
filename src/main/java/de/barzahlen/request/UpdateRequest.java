@@ -23,8 +23,13 @@ package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
 import de.barzahlen.BarzahlenApiRequest;
-import de.barzahlen.request.xml.UpdateXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
+import de.barzahlen.response.ErrorResponse;
+import de.barzahlen.response.UpdateResponse;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -38,38 +43,20 @@ public class UpdateRequest extends ServerRequest {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger updateRequestLog = Logger.getLogger(UpdateRequest.class.getName());
+	private static final Logger updateRequestLog = LoggerFactory.getLogger(UpdateRequest.class);
 
 	/**
 	 * The xml info retrieved from the server response.
 	 */
-	public static UpdateXMLInfo XML_INFO;
-
-	static {
-		XML_INFO = new UpdateXMLInfo();
-	}
-
-	/**
-	 * Default constructor.
-	 */
-	public UpdateRequest() {
-		super();
-		updateRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		updateRequestLog.addAppender(this.logAppender.getFileAppender());
-	}
+	private UpdateResponse updateResponse;
+	private BarzahlenApiRequest request;
+	private boolean successful;
 
 	/**
 	 * Constructor with parameters for the "update" request
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
 	 */
-	public UpdateRequest(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		super(_sandbox, _shopId, _paymentKey, _notificationKey);
-		updateRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		updateRequestLog.addAppender(this.logAppender.getFileAppender());
+	public UpdateRequest(Configuration configuration) {
+		super(configuration);
 	}
 
 	/**
@@ -96,12 +83,12 @@ public class UpdateRequest extends ServerRequest {
 
 	@Override
 	protected String assembleParameters(HashMap<String, String> _parameters) {
-		String hashMessage = this.shopId + ";" + _parameters.get("transaction_id") + ";" + _parameters.get("order_id") + ";"
-				+ this.paymentKey;
+		String hashMessage = getShopId() + ";" + _parameters.get("transaction_id") + ";" + _parameters.get("order_id") + ";"
+				+ getPaymentKey();
 
-		String hash = calculateHash(hashMessage);
+		String hash = HashTools.getHash(hashMessage);
 
-		String params = "shop_id=" + this.shopId + "&transaction_id=" + _parameters.get("transaction_id") + "&order_id="
+		String params = "shop_id=" + getShopId() + "&transaction_id=" + _parameters.get("transaction_id") + "&order_id="
 				+ _parameters.get("order_id") + "&hash=" + hash;
 
 		return params;
@@ -109,16 +96,21 @@ public class UpdateRequest extends ServerRequest {
 
 	@Override
 	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, ResendEmailRequest.XML_INFO);
-		boolean successful = request.doRequest(_urlParameters);
+		request = new BarzahlenApiRequest(_targetURL, UpdateResponse.class);
+		successful = request.doRequest(_urlParameters);
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
+		if (isSandboxMode()) {
 			updateRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
 					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
 			updateRequestLog.debug(request.getResult());
-			updateRequestLog.debug(UpdateRequest.XML_INFO.getTransactionId());
-			updateRequestLog.debug(String.valueOf(UpdateRequest.XML_INFO.getResult()));
-			updateRequestLog.debug(UpdateRequest.XML_INFO.getHash());
+
+			if (successful) {
+				updateResponse = (UpdateResponse) request.getResponse();
+
+				updateRequestLog.debug(updateResponse.getTransactionId());
+				updateRequestLog.debug(String.valueOf(updateResponse.getResult()));
+				updateRequestLog.debug(updateResponse.getHash());
+			}
 		}
 
 		if (!successful) {
@@ -126,27 +118,34 @@ public class UpdateRequest extends ServerRequest {
 					_targetURL,
 					_urlParameters,
 					RequestErrorCode.XML_ERROR,
-					updateRequestLog,
 					"Update request failed - retry",
 					"Error received from the server. Response code: " + request.getResponseCode() + ". Response message: "
 							+ request.getResponseMessage());
-		} else if (!UpdateRequest.XML_INFO.checkParameters()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, updateRequestLog,
-					"Update request failed - retry", "There are errors with parameters received from the server.");
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, updateRequestLog, "Update request failed - retry",
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Update request failed - retry",
 					"Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
+
+			updateResponse = (UpdateResponse) request.getResponse();
+
 			return true;
 		}
 	}
 
 	@Override
 	protected boolean compareHashes() {
-		String data = UpdateRequest.XML_INFO.getTransactionId() + ";" + UpdateRequest.XML_INFO.getResult() + ";" + this.paymentKey;
-		String hash = calculateHash(data);
+		String data = updateResponse.getTransactionId() + ";" + updateResponse.getResult() + ";" + getPaymentKey();
+		String hash = HashTools.getHash(data);
 
-		return hash.equals(UpdateRequest.XML_INFO.getHash());
+		return hash.equals(updateResponse.getHash());
+	}
+
+	public UpdateResponse getUpdateResponse() {
+		return updateResponse;
+	}
+
+	public ErrorResponse getErrorResponse() {
+		return (ErrorResponse) request.getResponse();
 	}
 }

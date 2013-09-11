@@ -1,16 +1,13 @@
 package de.barzahlen.request;
 
-import de.barzahlen.request.xml.RefundXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
 import org.junit.Before;
 import org.junit.Test;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the RefundRequest class
@@ -31,8 +28,8 @@ public class RefundRequestTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.refundRequest = new RefundRequest(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		this.refundRequest = new RefundRequest(configuration);
 	}
 
 	/**
@@ -73,36 +70,13 @@ public class RefundRequestTest {
 	}
 
 	/**
-	 * Tests the method that compare two hashes
-	 */
-	@Test
-	public void testCompareHashes() {
-		try {
-			RefundRequest.XML_INFO = new RefundXMLInfo();
-			String test = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-			test += "<response>\n";
-			test += "<origin-transaction-id>19449282</origin-transaction-id>\n";
-			test += "<refund-transaction-id>19724587</refund-transaction-id>\n";
-			test += "<result>0</result>\n";
-			test += "<hash>1aba92229fd3f73acf9c45a83af2244cec5833550e0ed605f3170baa4f59cfa108253ec20dc6eeddfdbae19e82c438c96b1a5853cc26ab2a6910ba9a8da5f1ed</hash>\n";
-			test += "</response>";
-			RefundRequest.XML_INFO.readXMLFile(test, 200);
-			assertTrue("Compare Hashes", this.refundRequest.compareHashes());
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Tests the method that executes the error action with a xml error (1)
 	 *
 	 * @throws Exception
 	 */
 	@Test(expected = Exception.class)
 	public void testErrorActionXML1() throws Exception {
-		this.refundRequest.errorAction("", "", RequestErrorCode.XML_ERROR, Logger.getLogger(RefundRequestTest.class),
+		this.refundRequest.errorAction("", "", RequestErrorCode.XML_ERROR,
 				"XML error message 1", "XML error message 2");
 	}
 
@@ -114,7 +88,7 @@ public class RefundRequestTest {
 	@Test(expected = Exception.class)
 	public void testErrorActionXML2() throws Exception {
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-		this.refundRequest.errorAction("", "", RequestErrorCode.XML_ERROR, Logger.getLogger(RefundRequestTest.class),
+		this.refundRequest.errorAction("", "", RequestErrorCode.XML_ERROR,
 				"XML error message 1", "XML error message 2");
 	}
 
@@ -126,7 +100,7 @@ public class RefundRequestTest {
 	 */
 	@Test(expected = Exception.class)
 	public void testErrorActionParameters1() throws Exception {
-		this.refundRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR, Logger.getLogger(RefundRequestTest.class),
+		this.refundRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR,
 				"Parameters error message 1", "Parameters error message 2");
 	}
 
@@ -138,7 +112,7 @@ public class RefundRequestTest {
 	@Test(expected = Exception.class)
 	public void testErrorActionParameters2() throws Exception {
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-		this.refundRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR, Logger.getLogger(RefundRequestTest.class),
+		this.refundRequest.errorAction("", "", RequestErrorCode.PARAMETERS_ERROR,
 				"Parameters error message 1", "Parameters error message 2");
 	}
 
@@ -149,7 +123,7 @@ public class RefundRequestTest {
 	 */
 	@Test(expected = Exception.class)
 	public void testErrorActionHash1() throws Exception {
-		this.refundRequest.errorAction("", "", RequestErrorCode.HASH_ERROR, Logger.getLogger(RefundRequestTest.class),
+		this.refundRequest.errorAction("", "", RequestErrorCode.HASH_ERROR,
 				"Hash error message 1", "Hash error message 2");
 	}
 
@@ -161,7 +135,7 @@ public class RefundRequestTest {
 	@Test(expected = Exception.class)
 	public void testErrorActionHash2() throws Exception {
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
-		this.refundRequest.errorAction("", "", RequestErrorCode.HASH_ERROR, Logger.getLogger(RefundRequestTest.class),
+		this.refundRequest.errorAction("", "", RequestErrorCode.HASH_ERROR,
 				"Hash error message 1", "Hash error message 2");
 	}
 }

@@ -1,6 +1,9 @@
 package de.barzahlen;
 
-import de.barzahlen.enums.SandboxDebugMode;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.request.CreateRequest;
+import de.barzahlen.tools.HashTools;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,22 +28,8 @@ public class BarzahlenTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.barzahlen = new Barzahlen();
-	}
-
-	/**
-	 * Tests the get and set debugging mode
-	 */
-	@SuppressWarnings("static-method")
-	@Test
-	public void testSetDebuggingMode() {
-		Barzahlen.setDebuggingMode(false);
-
-		assertFalse("Log details disabled", Barzahlen.getDebuggingMode());
-
-		Barzahlen.setDebuggingMode(true);
-
-		assertTrue("Log details enabled", Barzahlen.getDebuggingMode());
+		Configuration configuration = new Configuration(true, "12838", "123456789", "987654321");
+		this.barzahlen = new Barzahlen(configuration);
 	}
 
 	/**
@@ -49,7 +38,10 @@ public class BarzahlenTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void testSetSandboxDebugMode() {
-		Barzahlen.setSandboxDebugMode(SandboxDebugMode.SANDBOX);
+		Configuration configuration = new Configuration(true, null, null, null);
+		CreateRequest createRequest = new CreateRequest(configuration);
+
+		Assert.assertTrue(createRequest.isSandboxMode());
 
 		assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/create", Barzahlen.BARZAHLEN_CREATE_URL);
 		assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/resend_email",
@@ -57,24 +49,15 @@ public class BarzahlenTest {
 		assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/refund", Barzahlen.BARZAHLEN_REFUND_URL);
 		assertEquals("Sandbox Urls", "https://api-sandbox.barzahlen.de/v1/transactions/update", Barzahlen.BARZAHLEN_UPDATE_URL);
 
-		Barzahlen.setSandboxDebugMode(SandboxDebugMode.DEBUG);
+		configuration = new Configuration(false, null, null, null);
+		createRequest = new CreateRequest(configuration);
+
+		Assert.assertFalse(createRequest.isSandboxMode());
 
 		assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/create", Barzahlen.BARZAHLEN_CREATE_URL);
 		assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/resend_email", Barzahlen.BARZAHLEN_RESEND_EMAIL_URL);
 		assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/refund", Barzahlen.BARZAHLEN_REFUND_URL);
 		assertEquals("Debug Urls", "https://api.barzahlen.de/v1/transactions/update", Barzahlen.BARZAHLEN_UPDATE_URL);
-	}
-
-	/**
-	 * Tests the methods that returns the sandbox or debug mode
-	 */
-	@SuppressWarnings("static-method")
-	@Test
-	public void testGetSandboxDebugMode() {
-		Barzahlen.setSandboxDebugMode(SandboxDebugMode.SANDBOX);
-		assertEquals("Get Sandbox Debug Mode", SandboxDebugMode.SANDBOX, Barzahlen.getSandboxDebugMode());
-		Barzahlen.setSandboxDebugMode(SandboxDebugMode.DEBUG);
-		assertEquals("Get Sandbox Debug Mode", SandboxDebugMode.DEBUG, Barzahlen.getSandboxDebugMode());
 	}
 
 	/**
@@ -85,7 +68,7 @@ public class BarzahlenTest {
 	public void testCreateHash1() {
 		assertTrue("Hash test",
 				"da72511660e27c6ab5b20b2828d123dd1243331407e0b0063f1ae0a308c9fb2d3426708208a7cabcda0af1e0e1b32ea2bce06f72e25bfb15e58f11375b4a8bf6"
-						.equals(Barzahlen.calculateHash("hash message")));
+						.equals(HashTools.getHash("hash message")));
 	}
 
 	/**
@@ -97,7 +80,7 @@ public class BarzahlenTest {
 		// Introduce the hash from an empty string
 		assertTrue("Hash test",
 				"cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
-						.equals(Barzahlen.calculateHash("")));
+						.equals(HashTools.getHash("")));
 	}
 
 	/**
@@ -109,7 +92,7 @@ public class BarzahlenTest {
 		// Introduce a hash with errors
 		assertFalse("Hash test",
 				"1a72511660e27c6ab5b20b2828d123dd1243331407e0b0063f1ae0a308c9fb2d3426708208a7cabcda0af1e0e1b32ea2bce06f72e25bfb15e58f11375b4a8bf6"
-						.equals(Barzahlen.calculateHash("hash message")));
+						.equals(HashTools.getHash("hash message")));
 	}
 
 	/**
@@ -117,7 +100,6 @@ public class BarzahlenTest {
 	 */
 	@Test
 	public void testGetShopId() {
-		this.barzahlen.setShopId("12838");
 		assertEquals("Get Shop Id", "12838", this.barzahlen.getShopId());
 	}
 
@@ -126,7 +108,6 @@ public class BarzahlenTest {
 	 */
 	@Test
 	public void testGetPaymentKey() {
-		this.barzahlen.setPaymentKey("123456789");
 		assertEquals("Get Payment Key", "123456789", this.barzahlen.getPaymentKey());
 	}
 
@@ -135,7 +116,6 @@ public class BarzahlenTest {
 	 */
 	@Test
 	public void testGetNotificationKey() {
-		this.barzahlen.setNotificationKey("987654321");
 		assertEquals("Get Notification Key", "987654321", this.barzahlen.getNotificationKey());
 	}
 }

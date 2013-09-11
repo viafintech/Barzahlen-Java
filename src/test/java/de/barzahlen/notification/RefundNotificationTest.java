@@ -1,6 +1,7 @@
 package de.barzahlen.notification;
 
-import de.barzahlen.Barzahlen;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.configuration.NotificationConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -65,10 +66,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -101,10 +103,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -137,10 +140,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -173,10 +177,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -209,10 +214,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -245,10 +251,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -281,10 +288,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -317,10 +325,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -353,10 +362,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -389,10 +399,11 @@ public class RefundNotificationTest {
 				.thenReturn(
 						"cd80e31cd28bd9fd4c364f43e31f011cf014c9edaf82c3fd4d27eca56f313fc47a4a7f76825a633f7aa915bbfe618d1d50f041558ae4edc7cbe4152e1a78e95b");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");
@@ -423,10 +434,11 @@ public class RefundNotificationTest {
 		Mockito.when(this.mockRequest.getParameter("origin_order_id")).thenReturn("473");
 		Mockito.when(this.mockRequest.getParameter("hash")).thenReturn("");
 
-		this.refundNotification = new RefundNotification(this.mockRequest, this.mockResponse);
-		this.refundNotification.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-		Barzahlen.setDebuggingMode(true);
+		NotificationConfiguration notificationConfiguration = new NotificationConfiguration(true, this.mockRequest, this.mockResponse);
+		Configuration configuration = new Configuration(true, "12838", "926b038c5437f78256e046cfb925229161621664", "de905f2dece63d04efc1e631d9c1c060e45bc28c");
+		notificationConfiguration.applyConfiguration(configuration);
+
+		this.refundNotification = new RefundNotification(notificationConfiguration);
 
 		HashMap<String, String> _parameters = new HashMap<String, String>();
 		_parameters.put("origin_transaction_id", "19991103");

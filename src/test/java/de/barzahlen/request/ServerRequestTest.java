@@ -1,13 +1,13 @@
 package de.barzahlen.request;
 
-import de.barzahlen.Barzahlen;
-import de.barzahlen.enums.SandboxDebugMode;
+import de.barzahlen.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.HashMap;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Tests the ServerRequest class
@@ -28,7 +28,9 @@ public class ServerRequestTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-		this.serverRequest = new ServerRequest() {
+		Configuration configuration = new Configuration(true, null, null, null);
+
+		this.serverRequest = new ServerRequest(configuration) {
 
 			@Override
 			protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
@@ -50,18 +52,6 @@ public class ServerRequestTest {
 				return new String[0];
 			}
 		};
-		Barzahlen.setDebuggingMode(true);
-	}
-
-	@Test
-	public void testSetParameters() {
-		this.serverRequest.setParameters(true, "12838", "926b038c5437f78256e046cfb925229161621664",
-				"de905f2dece63d04efc1e631d9c1c060e45bc28c");
-
-		assertEquals(SandboxDebugMode.SANDBOX, Barzahlen.getSandboxDebugMode());
-		assertEquals("12838", this.serverRequest.getShopId());
-		assertEquals("926b038c5437f78256e046cfb925229161621664", this.serverRequest.getPaymentKey());
-		assertEquals("de905f2dece63d04efc1e631d9c1c060e45bc28c", this.serverRequest.getNotificationKey());
 	}
 
 	/**

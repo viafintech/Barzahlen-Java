@@ -22,6 +22,7 @@
 package de.barzahlen.notification;
 
 import de.barzahlen.Barzahlen;
+import de.barzahlen.configuration.NotificationConfiguration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -138,13 +139,12 @@ public abstract class Notification extends Barzahlen {
 
 	/**
 	 * Constructor with parameters
-	 *
-	 * @param _request  The request received from the server
-	 * @param _response The response associated with the server
 	 */
-	public Notification(HttpServletRequest _request, HttpServletResponse _response) {
-		this.request = _request;
-		this.response = _response;
+	public Notification(NotificationConfiguration notificationConfiguration) {
+		super(notificationConfiguration);
+
+		this.request = notificationConfiguration.getRequest();
+		this.response = notificationConfiguration.getResponse();
 	}
 
 	/**

@@ -21,11 +21,12 @@
  */
 package de.barzahlen.notification;
 
-import de.barzahlen.Barzahlen;
+import de.barzahlen.configuration.NotificationConfiguration;
 import de.barzahlen.request.ServerRequest;
-import org.apache.log4j.Logger;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,7 +43,7 @@ public final class RefundNotification extends Notification {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger refundNotificationLog = Logger.getLogger(RefundNotification.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(RefundNotification.class);
 
 	/**
 	 * A print writer to show some output in the browser.
@@ -112,14 +113,11 @@ public final class RefundNotification extends Notification {
 	/**
 	 * Constructor with parameters
 	 *
-	 * @param _request  The request received from the server
-	 * @param _response The response associated with the server
 	 * @throws IOException
 	 */
-	public RefundNotification(HttpServletRequest _request, HttpServletResponse _response) throws IOException {
-		super(_request, _response);
-		refundNotificationLog.addAppender(this.logAppender.getConsoleAppender());
-		refundNotificationLog.addAppender(this.logAppender.getFileAppender());
+	public RefundNotification(NotificationConfiguration notificationConfiguration) throws IOException {
+		super(notificationConfiguration);
+
 		this.outStream = this.response.getWriter();
 		this._state = this.request.getParameter(STATE);
 		this._refundTransactionId = this.request.getParameter(REFUND_TRANSACTION_ID);
@@ -139,12 +137,12 @@ public final class RefundNotification extends Notification {
 	public boolean checkNotification(HashMap<String, String> _parameters) throws Exception {
 		String message = this._state + ";" + this._refundTransactionId + ";" + this._originTransactionId + ";" + this._shopId + ";"
 				+ this._customerEmail + ";" + this._amount + ";" + this._currency + ";" + this._originOrderId + ";" + this._customVar0
-				+ ";" + this._customVar1 + ";" + this._customVar2 + ";" + this.notificationKey;
+				+ ";" + this._customVar1 + ";" + this._customVar2 + ";" + this.getNotificationKey();
 
 		this.response.setStatus(HttpServletResponse.SC_OK);
 
 		// Check if everything is ok
-		if (this.shopId.equals(this._shopId)) {
+		if (this.getShopId().equals(this._shopId)) {
 
 			if (this._state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_COMPLETED)
 					|| this._state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_EXPIRED)) {
@@ -165,13 +163,13 @@ public final class RefundNotification extends Notification {
 
 									if (am.equals(_am)) {
 
-										if (Barzahlen.calculateHash(message).equals(this._hash)) {
+										if (HashTools.getHash(message).equals(this._hash)) {
 											BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.SUCCESS;
 											return true;
 										}
 
-										if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-											refundNotificationLog.debug("Data received in callback not correct: Hash not correct.");
+										if (isSandboxMode()) {
+											logger.debug("Data received in callback not correct: Hash not correct.");
 										}
 
 										this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -180,8 +178,8 @@ public final class RefundNotification extends Notification {
 										throw new Exception("Data received in callback not correct: Hash not correct.");
 									}
 
-									if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-										refundNotificationLog.debug("Data received in callback not correct: Amount not correct.");
+									if (isSandboxMode()) {
+										logger.debug("Data received in callback not correct: Amount not correct.");
 									}
 
 									this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -191,8 +189,8 @@ public final class RefundNotification extends Notification {
 
 								}
 
-								if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-									refundNotificationLog.debug("Data received in callback not correct: Currency not correct.");
+								if (isSandboxMode()) {
+									logger.debug("Data received in callback not correct: Currency not correct.");
 								}
 
 								this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -202,8 +200,8 @@ public final class RefundNotification extends Notification {
 
 							}
 
-							if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-								refundNotificationLog.debug("Data received in callback not correct: Customer email not correct.");
+							if (isSandboxMode()) {
+								logger.debug("Data received in callback not correct: Customer email not correct.");
 							}
 
 							this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -213,8 +211,8 @@ public final class RefundNotification extends Notification {
 
 						}
 
-						if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-							refundNotificationLog.debug("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
+						if (isSandboxMode()) {
+							logger.debug("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
 						}
 
 						this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -224,8 +222,8 @@ public final class RefundNotification extends Notification {
 
 					}
 
-					if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-						refundNotificationLog.debug("Data received in callback not correct: Origin order ID not correct.");
+					if (isSandboxMode()) {
+						logger.debug("Data received in callback not correct: Origin order ID not correct.");
 					}
 
 					this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -235,8 +233,8 @@ public final class RefundNotification extends Notification {
 
 				}
 
-				if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-					refundNotificationLog.debug("Data received in callback not correct: Origin transaction ID not correct.");
+				if (isSandboxMode()) {
+					logger.debug("Data received in callback not correct: Origin transaction ID not correct.");
 				}
 
 				this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -246,22 +244,19 @@ public final class RefundNotification extends Notification {
 
 			}
 
-			if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-				refundNotificationLog
-						.debug("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 			}
 
 			this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.TRANSACTION_STATE_ERROR;
-			this.outStream
-					.println("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
-			throw new Exception(
-					"Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
+			this.outStream.println("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
+			throw new Exception("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 
 		}
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
-			refundNotificationLog.debug("Data received is not correct (shop id is incorrect).");
+		if (isSandboxMode()) {
+			logger.debug("Data received is not correct (shop id is incorrect).");
 		}
 
 		this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

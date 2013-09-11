@@ -21,11 +21,10 @@
  */
 package de.barzahlen;
 
-import de.barzahlen.enums.SandboxDebugMode;
-import de.barzahlen.logging.BarzahlenAppender;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.configuration.NotificationConfiguration;
+import de.barzahlen.tools.HashTools;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 
 /**
@@ -36,40 +35,29 @@ import java.util.HashMap;
 public class Barzahlen {
 
 	/**
-	 * Indicates whether it is sandbox or debug mode.
-	 */
-	protected static SandboxDebugMode sandboxDebugMode;
-
-	/**
-	 * Indicates whether the log detail mode (debugging) is enabled (enabled by
-	 * default).
-	 */
-	protected static boolean BARZAHLEN_DEBUGGING_MODE;
-
-	/**
 	 * The Url to send the create transaction request
 	 */
-	protected static String BARZAHLEN_CREATE_URL;
+	public static String BARZAHLEN_CREATE_URL;
 
 	/**
 	 * The Url for the resend email request
 	 */
-	protected static String BARZAHLEN_RESEND_EMAIL_URL;
+	public static String BARZAHLEN_RESEND_EMAIL_URL;
 
 	/**
 	 * The Url to send the request
 	 */
-	protected static String BARZAHLEN_REFUND_URL;
+	public static String BARZAHLEN_REFUND_URL;
 
 	/**
 	 * The Url to send the request
 	 */
-	protected static String BARZAHLEN_UPDATE_URL;
+	public static String BARZAHLEN_UPDATE_URL;
 
 	/**
 	 * The Url to send the cancel request
 	 */
-	protected static String BARZAHLEN_CANCEL_URL;
+	public static String BARZAHLEN_CANCEL_URL;
 
 	static {
 		BARZAHLEN_CREATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/create";
@@ -77,74 +65,71 @@ public class Barzahlen {
 		BARZAHLEN_REFUND_URL = "https://api-sandbox.barzahlen.de/v1/transactions/refund";
 		BARZAHLEN_UPDATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/update";
 		BARZAHLEN_CANCEL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/cancel";
-		BARZAHLEN_DEBUGGING_MODE = true;
 	}
 
 	/**
-	 * Enables either sandbox or debug mode for requests.
-	 */
-	public static void setDebuggingMode(boolean mode) {
-		BARZAHLEN_DEBUGGING_MODE = mode;
-	}
-
-	/**
-	 * Returns the sandbox or debug mode
 	 *
-	 * @return the sandboxDebugMode
 	 */
-	public static SandboxDebugMode getSandboxDebugMode() {
-		return sandboxDebugMode;
-	}
+	private Configuration configuration = null;
 
 	/**
-	 * Gets the debugging mode value
 	 *
-	 * @return the debugging mode value
 	 */
-	public static boolean getDebuggingMode() {
-		return BARZAHLEN_DEBUGGING_MODE;
-	}
+	private NotificationConfiguration notificationConfiguration = null;
 
 	/**
-	 * The Barzahlen log appender
+	 *
 	 */
-	protected final BarzahlenAppender logAppender;
+	private boolean sandboxMode;
 
 	/**
 	 * The shop identifier.
 	 */
-	protected String shopId;
+	private String shopId;
 
 	/**
 	 * The payment key.
 	 */
-	protected String paymentKey;
+	private String paymentKey;
 
 	/**
 	 * The notification key.
 	 */
-	protected String notificationKey;
+	private String notificationKey;
 
 	/**
 	 * Default constructor. Initializes the log appender.
 	 */
-	public Barzahlen() {
-		this.logAppender = new BarzahlenAppender();
+	public Barzahlen(Configuration configuration) {
+		this.configuration = configuration;
+		this.shopId = configuration.getShopId();
+		this.paymentKey = configuration.getPaymentKey();
+		this.notificationKey = configuration.getNotificationKey();
+
+		setSandboxMode(configuration.isSandBoxMode());
+	}
+
+	public Barzahlen(NotificationConfiguration notificationConfiguration) {
+		this.notificationConfiguration = notificationConfiguration;
+
+		shopId = notificationConfiguration.getShopId();
+		paymentKey = notificationConfiguration.getPaymentKey();
+		notificationKey = notificationConfiguration.getNotificationKey();
 	}
 
 	/**
 	 * Enables either sandbox or debug mode for requests.
 	 */
-	public static void setSandboxDebugMode(SandboxDebugMode mode) {
-		if (mode == SandboxDebugMode.SANDBOX) {
-			sandboxDebugMode = SandboxDebugMode.SANDBOX;
+	private void setSandboxMode(boolean mode) {
+		sandboxMode = mode;
+
+		if (sandboxMode) {
 			BARZAHLEN_CREATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/create";
 			BARZAHLEN_RESEND_EMAIL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/resend_email";
 			BARZAHLEN_REFUND_URL = "https://api-sandbox.barzahlen.de/v1/transactions/refund";
 			BARZAHLEN_UPDATE_URL = "https://api-sandbox.barzahlen.de/v1/transactions/update";
 			BARZAHLEN_CANCEL_URL = "https://api-sandbox.barzahlen.de/v1/transactions/cancel";
-		} else if (mode == SandboxDebugMode.DEBUG) {
-			sandboxDebugMode = SandboxDebugMode.DEBUG;
+		} else {
 			BARZAHLEN_CREATE_URL = "https://api.barzahlen.de/v1/transactions/create";
 			BARZAHLEN_RESEND_EMAIL_URL = "https://api.barzahlen.de/v1/transactions/resend_email";
 			BARZAHLEN_REFUND_URL = "https://api.barzahlen.de/v1/transactions/refund";
@@ -156,11 +141,11 @@ public class Barzahlen {
 	/**
 	 * Creates hash from parameters list, order like in the template
 	 *
-	 * @param template
-	 * @param parameters
-	 * @return The SHA512 hash
+	 * @param template   Ordered string array with all fields
+	 * @param parameters Parameters mapped to correct field
+	 * @return SHA512 hash as string
 	 */
-	public static String createHash(String[] template, HashMap<String, String> parameters) {
+	public String createHash(String[] template, HashMap<String, String> parameters) {
 		StringBuilder message = new StringBuilder();
 
 		for (String value : template) {
@@ -175,50 +160,17 @@ public class Barzahlen {
 
 		message.deleteCharAt(message.length() - 1);
 
-		return calculateHash(message.toString());
+		return HashTools.getHash(message.toString());
 	}
-
-	/**
-	 * Creates the SHA512 hash of a message.
-	 *
-	 * @param message The message to create the hash from
-	 * @return The SHA512 hash
-	 */
-	public static String calculateHash(String message) {
-		MessageDigest md;
-		String out = "";
-
-		try {
-			md = MessageDigest.getInstance("SHA-512");
-
-			md.update(message.getBytes());
-			byte[] mb = md.digest();
-
-			for (byte temp : mb) {
-				String s = Integer.toHexString(temp);
-				while (s.length() < 2) {
-					s = "0" + s;
-				}
-				s = s.substring(s.length() - 2);
-				out += s;
-			}
-
-		} catch (NoSuchAlgorithmException e) {
-			//
-		}
-
-		return out;
-	}
-
 
 	/**
 	 * Creates parameter list for url from list of strings
 	 *
-	 * @param template
-	 * @param parameters
+	 * @param template   Ordered string array with all fields
+	 * @param parameters Parameters mapped to correct field
 	 * @return parameters for url
 	 */
-	public static String createParametersString(String[] template, HashMap<String, String> parameters) {
+	public String createParametersString(String[] template, HashMap<String, String> parameters) {
 		StringBuilder parametersString = new StringBuilder();
 
 		for (String value : template) {
@@ -235,26 +187,8 @@ public class Barzahlen {
 		return parametersString.toString();
 	}
 
-	/**
-	 * Set all parameters
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
-	 */
-	public void setParameters(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		if (_sandbox) {
-			sandboxDebugMode = SandboxDebugMode.SANDBOX;
-			setSandboxDebugMode(sandboxDebugMode);
-		} else {
-			sandboxDebugMode = SandboxDebugMode.DEBUG;
-			setSandboxDebugMode(sandboxDebugMode);
-		}
-
-		this.shopId = _shopId;
-		this.paymentKey = _paymentKey;
-		this.notificationKey = _notificationKey;
+	public void setConfiguration(Configuration configuration) {
+		this.configuration = configuration;
 	}
 
 	/**
@@ -285,29 +219,11 @@ public class Barzahlen {
 	}
 
 	/**
-	 * Sets a new shop id
+	 * Returns the sandbox or debug mode
 	 *
-	 * @param _shopId the shopId to set
+	 * @return the sandboxDebugMode
 	 */
-	public void setShopId(String _shopId) {
-		this.shopId = _shopId;
-	}
-
-	/**
-	 * Sets a new payment key
-	 *
-	 * @param _paymentKey the paymentKey to set
-	 */
-	public void setPaymentKey(String _paymentKey) {
-		this.paymentKey = _paymentKey;
-	}
-
-	/**
-	 * Sets a new notification key
-	 *
-	 * @param _notificationKey the notificationKey to set
-	 */
-	public void setNotificationKey(String _notificationKey) {
-		this.notificationKey = _notificationKey;
+	public boolean isSandboxMode() {
+		return sandboxMode;
 	}
 }

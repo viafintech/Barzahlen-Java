@@ -23,8 +23,13 @@ package de.barzahlen.request;
 
 import de.barzahlen.Barzahlen;
 import de.barzahlen.BarzahlenApiRequest;
-import de.barzahlen.request.xml.ResendEmailXMLInfo;
-import org.apache.log4j.Logger;
+import de.barzahlen.configuration.Configuration;
+import de.barzahlen.enums.RequestErrorCode;
+import de.barzahlen.response.ErrorResponse;
+import de.barzahlen.response.ResendEmailResponse;
+import de.barzahlen.tools.HashTools;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 
@@ -38,38 +43,20 @@ public final class ResendEmailRequest extends ServerRequest {
 	/**
 	 * Log file for the logger.
 	 */
-	private static final Logger resendEmailRequestLog = Logger.getLogger(ResendEmailRequest.class.getName());
+	private static final Logger resendEmailRequestLog = LoggerFactory.getLogger(ResendEmailRequest.class);
 
 	/**
 	 * The xml info retrieved from the server response.
 	 */
-	public static ResendEmailXMLInfo XML_INFO;
-
-	static {
-		XML_INFO = new ResendEmailXMLInfo();
-	}
-
-	/**
-	 * Default constructor.
-	 */
-	public ResendEmailRequest() {
-		super();
-		resendEmailRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		resendEmailRequestLog.addAppender(this.logAppender.getFileAppender());
-	}
+	private ResendEmailResponse resendEmailResponse;
+	private BarzahlenApiRequest request;
+	private boolean successful;
 
 	/**
 	 * Constructor with parameters for the "resend email" request
-	 *
-	 * @param _sandbox         True if wanted sandbox mode to be enabled
-	 * @param _shopId          The shop identifier
-	 * @param _paymentKey      The payment key
-	 * @param _notificationKey The notification key
 	 */
-	public ResendEmailRequest(boolean _sandbox, String _shopId, String _paymentKey, String _notificationKey) {
-		super(_sandbox, _shopId, _paymentKey, _notificationKey);
-		resendEmailRequestLog.addAppender(this.logAppender.getConsoleAppender());
-		resendEmailRequestLog.addAppender(this.logAppender.getFileAppender());
+	public ResendEmailRequest(Configuration configuration) {
+		super(configuration);
 	}
 
 	/**
@@ -97,40 +84,50 @@ public final class ResendEmailRequest extends ServerRequest {
 
 	@Override
 	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		BarzahlenApiRequest request = new BarzahlenApiRequest(_targetURL, ResendEmailRequest.XML_INFO);
-		boolean successful = request.doRequest(_urlParameters);
+		request = new BarzahlenApiRequest(_targetURL, ResendEmailResponse.class);
+		successful = request.doRequest(_urlParameters);
 
-		if (Barzahlen.BARZAHLEN_DEBUGGING_MODE) {
+		if (isSandboxMode()) {
 			resendEmailRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
 					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
 			resendEmailRequestLog.debug(request.getResult());
-			resendEmailRequestLog.debug(ResendEmailRequest.XML_INFO.getTransactionId());
-			resendEmailRequestLog.debug(String.valueOf(ResendEmailRequest.XML_INFO.getResult()));
-			resendEmailRequestLog.debug(ResendEmailRequest.XML_INFO.getHash());
+
+			if (successful) {
+				resendEmailResponse = (ResendEmailResponse) request.getResponse();
+
+				resendEmailRequestLog.debug(resendEmailResponse.getTransactionId());
+				resendEmailRequestLog.debug(String.valueOf(resendEmailResponse.getResult()));
+				resendEmailRequestLog.debug(resendEmailResponse.getHash());
+			}
 		}
 
 		if (!successful) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, resendEmailRequestLog,
-					"Resend email request failed - retry", "Error received from the server. Response code: " + request.getResponseCode()
-					+ ". Response message: " + request.getResponseMessage());
-		} else if (!ResendEmailRequest.XML_INFO.checkParameters()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.PARAMETERS_ERROR, resendEmailRequestLog,
-					"Resend email request failed - retry", "There are errors with parameters received from the server.");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Resend email request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, resendEmailRequestLog,
-					"Resend email request failed - retry", "Data received is not correct (hashes do not match)");
+			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Resend email request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
+
+			resendEmailResponse = (ResendEmailResponse) request.getResponse();
+
 			return true;
 		}
 	}
 
 	@Override
 	protected boolean compareHashes() {
-		String data = ResendEmailRequest.XML_INFO.getTransactionId() + ";" + ResendEmailRequest.XML_INFO.getResult() + ";"
-				+ this.paymentKey;
-		String hash = calculateHash(data);
+		String data = resendEmailResponse.getTransactionId() + ";" + resendEmailResponse.getResult() + ";" + getPaymentKey();
+		String hash = HashTools.getHash(data);
 
-		return hash.equals(ResendEmailRequest.XML_INFO.getHash());
+		return hash.equals(resendEmailResponse.getHash());
 	}
+
+	public ResendEmailResponse getResendEmailResponse() {
+		return resendEmailResponse;
+	}
+
+	public ErrorResponse getErrorResponse() {
+		return (ErrorResponse) request.getResponse();
+	}
+
 }
