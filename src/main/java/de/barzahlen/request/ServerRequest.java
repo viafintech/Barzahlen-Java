@@ -27,9 +27,7 @@ import de.barzahlen.enums.RequestErrorCode;
 import de.barzahlen.exceptions.RequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -193,8 +191,6 @@ public abstract class ServerRequest extends Barzahlen {
 	 *
 	 * @param _targetURL     The url to make the request to
 	 * @param _urlParameters The parameters of the http post request
-	 * @throws IOException
-	 * @throws SAXException
 	 * @throws Exception
 	 */
 	protected abstract boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception;
