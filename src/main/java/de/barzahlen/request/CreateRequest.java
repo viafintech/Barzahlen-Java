@@ -50,8 +50,15 @@ public final class CreateRequest extends ServerRequest {
 	 */
 	private CreateResponse createResponse;
 
+	/**
+	 * Request object
+	 */
 	private BarzahlenApiRequest request;
-	private boolean successful;
+
+	/**
+	 * Indicates whether the request was successful
+	 */
+	private boolean successful = false;
 
 	/**
 	 * Constructor with parameters for the "create" request
@@ -67,8 +74,10 @@ public final class CreateRequest extends ServerRequest {
 	 *                    and "currency" (ISO 4217).
 	 * @throws Exception
 	 */
-	public boolean create(HashMap<String, String> _parameters) throws Exception {
-		return executeServerRequest(Barzahlen.BARZAHLEN_CREATE_URL, assembleParameters(_parameters));
+	public CreateResponse create(HashMap<String, String> _parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_CREATE_URL, assembleParameters(_parameters));
+
+		return createResponse;
 	}
 
 	@Override
@@ -103,7 +112,7 @@ public final class CreateRequest extends ServerRequest {
 
 			logger.debug(request.getResult());
 
-			if (successful) {
+			if (isSuccessful()) {
 				createResponse = (CreateResponse) request.getResponse();
 
 				logger.debug(createResponse.getTransactionId());
@@ -116,7 +125,7 @@ public final class CreateRequest extends ServerRequest {
 			}
 		}
 
-		if (!successful) {
+		if (!isSuccessful()) {
 			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Payment slip request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
 			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Payment slip request failed - retry", "Data received is not correct (hashes do not match)");
@@ -146,6 +155,10 @@ public final class CreateRequest extends ServerRequest {
 
 	public CreateResponse getCreateResponse() {
 		return createResponse;
+	}
+
+	public boolean isSuccessful() {
+		return successful;
 	}
 
 	public ErrorResponse getErrorResponse() {

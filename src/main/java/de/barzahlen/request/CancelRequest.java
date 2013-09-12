@@ -68,8 +68,10 @@ public final class CancelRequest extends ServerRequest {
 	 *                    "language" (ISO 639-1).
 	 * @throws Exception
 	 */
-	public boolean cancel(HashMap<String, String> _parameters) throws Exception {
-		return executeServerRequest(Barzahlen.BARZAHLEN_CANCEL_URL, assembleParameters(_parameters));
+	public CancelResponse cancel(HashMap<String, String> _parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_CANCEL_URL, assembleParameters(_parameters));
+
+		return cancelResponse;
 	}
 
 	@Override
@@ -93,7 +95,7 @@ public final class CancelRequest extends ServerRequest {
 					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
 			logger.debug(request.getResult());
 
-			if (successful) {
+			if (isSuccessful()) {
 				cancelResponse = (CancelResponse) request.getResponse();
 
 				logger.debug(cancelResponse.getTransactionId());
@@ -102,7 +104,7 @@ public final class CancelRequest extends ServerRequest {
 			}
 		}
 
-		if (!successful) {
+		if (!isSuccessful()) {
 			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Cancel request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
 			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Cancel request failed - retry", "Data received is not correct (hashes do not match)");
@@ -129,5 +131,9 @@ public final class CancelRequest extends ServerRequest {
 
 	public ErrorResponse getErrorResponse() {
 		return (ErrorResponse) request.getResponse();
+	}
+
+	public boolean isSuccessful() {
+		return successful;
 	}
 }

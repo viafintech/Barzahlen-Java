@@ -15,6 +15,7 @@ import java.util.Scanner;
 
 public class BarzahlenApiRequest {
 
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(BarzahlenApiRequest.class);
 
 	private final String targetUrl;

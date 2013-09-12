@@ -66,8 +66,10 @@ public class UpdateRequest extends ServerRequest {
 	 *                    "transaction_id" and "order_id"
 	 * @throws Exception
 	 */
-	public boolean updateOrder(HashMap<String, String> _parameters) throws Exception {
-		return executeServerRequest(Barzahlen.BARZAHLEN_UPDATE_URL, assembleParameters(_parameters));
+	public UpdateResponse updateOrder(HashMap<String, String> _parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_UPDATE_URL, assembleParameters(_parameters));
+
+		return updateResponse;
 	}
 
 	@Override
@@ -104,7 +106,7 @@ public class UpdateRequest extends ServerRequest {
 					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
 			updateRequestLog.debug(request.getResult());
 
-			if (successful) {
+			if (isSuccessful()) {
 				updateResponse = (UpdateResponse) request.getResponse();
 
 				updateRequestLog.debug(updateResponse.getTransactionId());
@@ -113,7 +115,7 @@ public class UpdateRequest extends ServerRequest {
 			}
 		}
 
-		if (!successful) {
+		if (!isSuccessful()) {
 			return errorAction(
 					_targetURL,
 					_urlParameters,
@@ -147,5 +149,9 @@ public class UpdateRequest extends ServerRequest {
 
 	public ErrorResponse getErrorResponse() {
 		return (ErrorResponse) request.getResponse();
+	}
+
+	public boolean isSuccessful() {
+		return successful;
 	}
 }

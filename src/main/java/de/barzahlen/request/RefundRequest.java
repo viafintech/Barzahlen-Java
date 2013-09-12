@@ -67,8 +67,10 @@ public final class RefundRequest extends ServerRequest {
 	 *                    and "language" (ISO 639-1).
 	 * @throws Exception
 	 */
-	public boolean refund(HashMap<String, String> _parameters) throws Exception {
-		return executeServerRequest(Barzahlen.BARZAHLEN_REFUND_URL, assembleParameters(_parameters));
+	public RefundResponse refund(HashMap<String, String> _parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_REFUND_URL, assembleParameters(_parameters));
+
+		return refundResponse;
 	}
 
 	@Override
@@ -90,11 +92,10 @@ public final class RefundRequest extends ServerRequest {
 		successful = request.doRequest(_urlParameters);
 
 		if (isSandboxMode()) {
-			refundRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
-					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
+			refundRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage() + ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
 			refundRequestLog.debug(request.getResult());
 
-			if (successful) {
+			if (isSuccessful()) {
 				refundResponse = (RefundResponse) request.getResponse();
 
 				refundRequestLog.debug(refundResponse.getOriginTransactionId());
@@ -104,7 +105,7 @@ public final class RefundRequest extends ServerRequest {
 			}
 		}
 
-		if (!successful) {
+		if (!isSuccessful()) {
 			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Refund request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
 			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Refund request failed - retry", "Data received is not correct (hashes do not match)");
@@ -132,5 +133,9 @@ public final class RefundRequest extends ServerRequest {
 
 	public ErrorResponse getErrorResponse() {
 		return (ErrorResponse) request.getResponse();
+	}
+
+	public boolean isSuccessful() {
+		return successful;
 	}
 }
