@@ -6,6 +6,18 @@
 	<version>1.0.4-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
+	<organization>
+		<name>Cash Payment Solutions GmbH</name>
+		<url>https://www.barzahlen.de/</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License, version 3 (GPL-3.0)</name>
+			<url>http://opensource.org/licenses/GPL-3.0</url>
+		</license>
+	</licenses>
+
 	<contributors>
 		<contributor>
 			<name>Jesus Javier Nuno Garcia</name>
