@@ -22,6 +22,8 @@
 package de.barzahlen.notification;
 
 import de.barzahlen.configuration.NotificationConfiguration;
+import de.barzahlen.enums.NotificationErrorCode;
+import de.barzahlen.exceptions.NotificationException;
 import de.barzahlen.request.ServerRequest;
 import de.barzahlen.tools.HashTools;
 import org.slf4j.Logger;
@@ -31,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that implements the checking for the payment notification.
@@ -53,62 +55,62 @@ public final class RefundNotification extends Notification {
 	/**
 	 * The transaction state retrieved from the server request
 	 */
-	protected String _state;
+	protected String state;
 
 	/**
 	 * The refund transaction identifier retrieved from the server request
 	 */
-	protected String _refundTransactionId;
+	protected String refundTransactionId;
 
 	/**
 	 * The origin transaction identifier retrieved from the server request
 	 */
-	protected String _originTransactionId;
+	protected String originTransactionId;
 
 	/**
 	 * The shop identifier retrieved from the server request
 	 */
-	protected String _shopId;
+	protected String shopId;
 
 	/**
 	 * The customer email retrieved from the server request
 	 */
-	protected String _customerEmail;
+	protected String customerEmail;
 
 	/**
 	 * The transaction amount retrieved from the server request
 	 */
-	protected String _amount;
+	protected String amount;
 
 	/**
 	 * The currency retrieved from the server request
 	 */
-	protected String _currency;
+	protected String currency;
 
 	/**
 	 * The origin order identifier from the server request
 	 */
-	protected String _originOrderId;
+	protected String originOrderId;
 
 	/**
 	 * The custom variable (0) retrieved from the server request
 	 */
-	protected String _customVar0;
+	protected String customVar0;
 
 	/**
 	 * The custom variable (1) retrieved from the server request
 	 */
-	protected String _customVar1;
+	protected String customVar1;
 
 	/**
 	 * The custom variable (2) retrieved from the server request
 	 */
-	protected String _customVar2;
+	protected String customVar2;
 
 	/**
 	 * The hash retrieved from the server request
 	 */
-	protected String _hash;
+	protected String hash;
 
 	/**
 	 * Constructor with parameters
@@ -118,151 +120,137 @@ public final class RefundNotification extends Notification {
 	public RefundNotification(NotificationConfiguration notificationConfiguration) throws IOException {
 		super(notificationConfiguration);
 
-		this.outStream = this.response.getWriter();
-		this._state = this.request.getParameter(STATE);
-		this._refundTransactionId = this.request.getParameter(REFUND_TRANSACTION_ID);
-		this._originTransactionId = this.request.getParameter(ORIGIN_TRANSACTION_ID);
-		this._shopId = this.request.getParameter(SHOP_ID);
-		this._customerEmail = this.request.getParameter(CUSTOMER_EMAIL);
-		this._amount = this.request.getParameter(AMOUNT);
-		this._currency = this.request.getParameter(CURRENCY);
-		this._originOrderId = this.request.getParameter(ORIGIN_ORDER_ID);
-		this._customVar0 = this.request.getParameter(CUSTOM_VAR_0);
-		this._customVar1 = this.request.getParameter(CUSTOM_VAR_1);
-		this._customVar2 = this.request.getParameter(CUSTOM_VAR_2);
-		this._hash = this.request.getParameter(HASH);
+		this.outStream = this.getResponse().getWriter();
+		this.state = this.getRequest().getParameter(STATE);
+		this.refundTransactionId = this.getRequest().getParameter(REFUND_TRANSACTION_ID);
+		this.originTransactionId = this.getRequest().getParameter(ORIGIN_TRANSACTION_ID);
+		this.shopId = this.getRequest().getParameter(SHOP_ID);
+		this.customerEmail = this.getRequest().getParameter(CUSTOMER_EMAIL);
+		this.amount = this.getRequest().getParameter(AMOUNT);
+		this.currency = this.getRequest().getParameter(CURRENCY);
+		this.originOrderId = this.getRequest().getParameter(ORIGIN_ORDER_ID);
+		this.customVar0 = this.getRequest().getParameter(CUSTOM_VAR_0);
+		this.customVar1 = this.getRequest().getParameter(CUSTOM_VAR_1);
+		this.customVar2 = this.getRequest().getParameter(CUSTOM_VAR_2);
+		this.hash = this.getRequest().getParameter(HASH);
 	}
 
 	@Override
-	public boolean checkNotification(HashMap<String, String> _parameters) throws Exception {
-		String message = this._state + ";" + this._refundTransactionId + ";" + this._originTransactionId + ";" + this._shopId + ";"
-				+ this._customerEmail + ";" + this._amount + ";" + this._currency + ";" + this._originOrderId + ";" + this._customVar0
-				+ ";" + this._customVar1 + ";" + this._customVar2 + ";" + this.getNotificationKey();
+	public boolean checkNotification(Map<String, String> parameters) throws Exception {
+		String message = this.state + ";" + this.refundTransactionId + ";" + this.originTransactionId + ";" + this.shopId + ";"
+				+ this.customerEmail + ";" + this.amount + ";" + this.currency + ";" + this.originOrderId + ";" + this.customVar0
+				+ ";" + this.customVar1 + ";" + this.customVar2 + ";" + this.getNotificationKey();
 
-		this.response.setStatus(HttpServletResponse.SC_OK);
+		this.getResponse().setStatus(HttpServletResponse.SC_OK);
 
 		// Check if everything is ok
-		if (this.getShopId().equals(this._shopId)) {
-
-			if (this._state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_COMPLETED)
-					|| this._state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_EXPIRED)) {
-
-				if (_parameters.get("origin_transaction_id").equals(this._originTransactionId)) {
-
-					if (_parameters.get("origin_order_id").equals(this._originOrderId)) {
-
-						if (_parameters.get("refund_state").equals(ServerRequest.BARZAHLEN_REFUND_ORDER_PENDING)) {
-
-							if (_parameters.get("customer_email").equals(this._customerEmail)) {
-
-								if (_parameters.get("currency").equals(this._currency)) {
-									String am = _parameters.get("amount");
-									DecimalFormat df = new DecimalFormat("#.00");
-									am = df.format(Double.valueOf(am)).replace(',', '.');
-									String _am = df.format(Double.valueOf(this._amount)).replace(',', '.');
-
-									if (am.equals(_am)) {
-
-										if (HashTools.getHash(message).equals(this._hash)) {
-											BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.SUCCESS;
-											return true;
-										}
-
-										if (isSandboxMode()) {
-											logger.debug("Data received in callback not correct: Hash not correct.");
-										}
-
-										this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-										BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.HASH_ERROR;
-										this.outStream.println("Data received in callback not correct: Hash not correct.");
-										throw new Exception("Data received in callback not correct: Hash not correct.");
-									}
-
-									if (isSandboxMode()) {
-										logger.debug("Data received in callback not correct: Amount not correct.");
-									}
-
-									this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-									BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.AMOUNT_ERROR;
-									this.outStream.println("Data received in callback not correct: Amount not correct.");
-									throw new Exception("Data received in callback not correct: Amount not correct.");
-
-								}
-
-								if (isSandboxMode()) {
-									logger.debug("Data received in callback not correct: Currency not correct.");
-								}
-
-								this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-								BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.CURRENCY_ERROR;
-								this.outStream.println("Data received in callback not correct: Currency not correct.");
-								throw new Exception("Data received in callback not correct: Currency not correct.");
-
-							}
-
-							if (isSandboxMode()) {
-								logger.debug("Data received in callback not correct: Customer email not correct.");
-							}
-
-							this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-							BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.CUSTOMER_EMAIL_ERROR;
-							this.outStream.println("Data received in callback not correct: Customer email not correct.");
-							throw new Exception("Data received in callback not correct: Customer email not correct.");
-
-						}
-
-						if (isSandboxMode()) {
-							logger.debug("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
-						}
-
-						this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-						BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.BARZAHLEN_TRANSACTION_STATE_ERROR;
-						this.outStream.println("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
-						throw new Exception("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
-
-					}
-
-					if (isSandboxMode()) {
-						logger.debug("Data received in callback not correct: Origin order ID not correct.");
-					}
-
-					this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.BARZAHLEN_ORIGIN_ORDER_ID_ERROR;
-					this.outStream.println("Data received in callback not correct: Origin order ID not correct.");
-					throw new Exception("Data received in callback not correct: Origin order ID not correct.");
-
-				}
-
-				if (isSandboxMode()) {
-					logger.debug("Data received in callback not correct: Origin transaction ID not correct.");
-				}
-
-				this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.BARZAHLEN_ORIGIN_TRANSACTION_ID_ERROR;
-				this.outStream.println("Data received in callback not correct: Origin transaction ID not correct.");
-				throw new Exception("Data received in callback not correct: Origin transaction ID not correct.");
-
+		if (!this.getShopId().equals(this.shopId)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received is not correct (shop id is incorrect).");
 			}
 
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.SHOP_ID_ERROR;
+			this.outStream.println("Data received is not correct (shop id is incorrect).");
+			throw new NotificationException("Data received is not correct (shop id is incorrect).");
+		}
+
+		if (!this.state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_COMPLETED) && !this.state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_EXPIRED)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 			}
 
-			this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.TRANSACTION_STATE_ERROR;
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.TRANSACTION_STATE_ERROR;
 			this.outStream.println("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
-			throw new Exception("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
-
+			throw new NotificationException("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 		}
 
-		if (isSandboxMode()) {
-			logger.debug("Data received is not correct (shop id is incorrect).");
+		if (!parameters.get("origin_transaction_id").equals(this.originTransactionId)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: Origin transaction ID not correct.");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.BARZAHLEN_ORIGIN_TRANSACTION_ID_ERROR;
+			this.outStream.println("Data received in callback not correct: Origin transaction ID not correct.");
+			throw new NotificationException("Data received in callback not correct: Origin transaction ID not correct.");
 		}
 
-		this.response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-		BARZAHLEN_NOTIFICATION_ERROR_CODE = NotificationErrorCode.SHOP_ID_ERROR;
-		this.outStream.println("Data received is not correct (shop id is incorrect).");
-		throw new Exception("Data received is not correct (shop id is incorrect).");
+		if (!parameters.get("origin_order_id").equals(this.originOrderId)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: Origin order ID not correct.");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.BARZAHLEN_ORIGIN_ORDER_ID_ERROR;
+			this.outStream.println("Data received in callback not correct: Origin order ID not correct.");
+			throw new NotificationException("Data received in callback not correct: Origin order ID not correct.");
+		}
+
+		if (!parameters.get("refund_state").equals(ServerRequest.BARZAHLEN_REFUND_ORDER_PENDING)) {
+			if (isSandboxMode()) {
+				logger.debug("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.BARZAHLEN_TRANSACTION_STATE_ERROR;
+			this.outStream.println("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
+			throw new NotificationException("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
+		}
+
+		if (!parameters.get("customer_email").equals(this.customerEmail)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: Customer email not correct.");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.CUSTOMER_EMAIL_ERROR;
+			this.outStream.println("Data received in callback not correct: Customer email not correct.");
+			throw new NotificationException("Data received in callback not correct: Customer email not correct.");
+		}
+
+		if (!parameters.get("currency").equals(this.currency)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: Currency not correct.");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.CURRENCY_ERROR;
+			this.outStream.println("Data received in callback not correct: Currency not correct.");
+			throw new NotificationException("Data received in callback not correct: Currency not correct.");
+		}
+
+		String amount = parameters.get(Notification.AMOUNT);
+		DecimalFormat df = new DecimalFormat("#.00");
+
+		amount = df.format(Double.valueOf(amount)).replace(',', '.');
+		String formattedAmount = df.format(Double.valueOf(this.amount)).replace(',', '.');
+
+		if (!amount.equals(formattedAmount)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: Amount not correct.");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.AMOUNT_ERROR;
+			this.outStream.println("Data received in callback not correct: Amount not correct.");
+			throw new NotificationException("Data received in callback not correct: Amount not correct.");
+		}
+
+		if (!HashTools.getHash(message).equals(this.hash)) {
+			if (isSandboxMode()) {
+				logger.debug("Data received in callback not correct: Hash not correct.");
+			}
+
+			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			notificationErrorCode = NotificationErrorCode.HASH_ERROR;
+			this.outStream.println("Data received in callback not correct: Hash not correct.");
+			throw new NotificationException("Data received in callback not correct: Hash not correct.");
+		}
+
+		notificationErrorCode = NotificationErrorCode.SUCCESS;
+		return true;
 
 	}
 }

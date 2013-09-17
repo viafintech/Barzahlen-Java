@@ -4,7 +4,9 @@ import de.barzahlen.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,7 +35,7 @@ public class ServerRequestTest {
 		this.serverRequest = new ServerRequest(configuration) {
 
 			@Override
-			protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
+			protected boolean executeServerRequest(String targetUrl, String urlParameters) throws Exception {
 				return false;
 			}
 
@@ -43,13 +45,13 @@ public class ServerRequestTest {
 			}
 
 			@Override
-			protected String assembleParameters(HashMap<String, String> _parameters) {
+			protected String assembleParameters(Map<String, String> parameters) {
 				return null;
 			}
 
 			@Override
-			protected String[] getParametersTemplate() {
-				return new String[0];
+			protected List<String> getParametersTemplate() {
+				return new ArrayList<String>(0);
 			}
 		};
 	}

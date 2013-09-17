@@ -31,7 +31,9 @@ import de.barzahlen.tools.HashTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implements the create transaction web service
@@ -70,45 +72,46 @@ public final class CreateRequest extends ServerRequest {
 	/**
 	 * Executes the create request.
 	 *
-	 * @param _parameters The parameters for the request. There are necessary "order_id"
-	 *                    and "currency" (ISO 4217).
+	 * @param parameters The parameters for the request. There are necessary "order_id"
+	 *                   and "currency" (ISO 4217).
 	 * @throws Exception
 	 */
-	public CreateResponse create(HashMap<String, String> _parameters) throws Exception {
-		executeServerRequest(Barzahlen.BARZAHLEN_CREATE_URL, assembleParameters(_parameters));
+	public CreateResponse create(Map<String, String> parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_CREATE_URL, assembleParameters(parameters));
 
 		return createResponse;
 	}
 
 	@Override
-	protected String[] getParametersTemplate() {
-		String parametersTemplate[] = new String[14];
-		parametersTemplate[0] = "shop_id";
-		parametersTemplate[1] = "customer_email";
-		parametersTemplate[2] = "amount";
-		parametersTemplate[3] = "currency";
-		parametersTemplate[4] = "language";
-		parametersTemplate[5] = "order_id";
-		parametersTemplate[6] = "customer_street_nr";
-		parametersTemplate[7] = "customer_zipcode";
-		parametersTemplate[8] = "customer_city";
-		parametersTemplate[9] = "customer_country";
-		parametersTemplate[10] = "custom_var_0";
-		parametersTemplate[11] = "custom_var_1";
-		parametersTemplate[12] = "custom_var_2";
-		parametersTemplate[13] = "payment_key";
+	protected List<String> getParametersTemplate() {
+		List<String> parametersTemplate = new ArrayList<String>(14);
+
+		parametersTemplate.add("shop_id");
+		parametersTemplate.add("customer_email");
+		parametersTemplate.add("amount");
+		parametersTemplate.add("currency");
+		parametersTemplate.add("language");
+		parametersTemplate.add("order_id");
+		parametersTemplate.add("customer_street_nr");
+		parametersTemplate.add("customer_zipcode");
+		parametersTemplate.add("customer_city");
+		parametersTemplate.add("customer_country");
+		parametersTemplate.add("custom_var_0");
+		parametersTemplate.add("custom_var_1");
+		parametersTemplate.add("custom_var_2");
+		parametersTemplate.add("payment_key");
 
 		return parametersTemplate;
 	}
 
 	@Override
-	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		request = new BarzahlenApiRequest(_targetURL, CreateResponse.class);
-		successful = request.doRequest(_urlParameters);
+	protected boolean executeServerRequest(String targetUrl, String urlParameters) throws Exception {
+		request = new BarzahlenApiRequest(targetUrl, CreateResponse.class);
+		successful = request.doRequest(urlParameters);
 
 		if (isSandboxMode()) {
 			logger.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
-					+ ". Parameters sent: " + ServerRequest.formatReadableParameters(_urlParameters));
+					+ ". Parameters sent: " + ServerRequest.formatReadableParameters(urlParameters));
 
 			logger.debug(request.getResult());
 
@@ -126,9 +129,9 @@ public final class CreateRequest extends ServerRequest {
 		}
 
 		if (!isSuccessful()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Payment slip request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.XML_ERROR, "Payment slip request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Payment slip request failed - retry", "Data received is not correct (hashes do not match)");
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.HASH_ERROR, "Payment slip request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
 

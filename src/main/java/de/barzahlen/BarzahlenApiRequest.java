@@ -1,5 +1,6 @@
 package de.barzahlen;
 
+import de.barzahlen.enums.HttpStatus;
 import de.barzahlen.response.ErrorResponse;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -41,7 +42,7 @@ public class BarzahlenApiRequest {
 
 		Serializer serializer = new Persister();
 
-		if (responseCode == 200) {
+		if (responseCode == HttpStatus.OK.getStatusCode()) {
 			response = serializer.read(responseClass, result);
 
 			return true;
@@ -59,7 +60,7 @@ public class BarzahlenApiRequest {
 
 		InputStream resultStream;
 
-		if (responseCode == 200) {
+		if (responseCode == HttpStatus.OK.getStatusCode()) {
 			resultStream = httpCon.getInputStream();
 		} else {
 			resultStream = httpCon.getErrorStream();

@@ -6,10 +6,16 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class HashTools {
+public final class HashTools {
 
 	public static final String DEFAULT_HASH_ALGORITHM = "SHA-512";
 	public static final String DEFAULT_ENCODING = "UTF-8";
+
+	/**
+	 * Utility classes should have a hidden constructor
+	 */
+	private HashTools() {
+	}
 
 	/**
 	 * Creates the SHA512 hash of a message.

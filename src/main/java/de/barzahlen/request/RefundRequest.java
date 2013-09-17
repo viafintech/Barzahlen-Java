@@ -31,7 +31,9 @@ import de.barzahlen.tools.HashTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implements the refund web service
@@ -62,37 +64,38 @@ public final class RefundRequest extends ServerRequest {
 	/**
 	 * Executes the refund for a specific order.
 	 *
-	 * @param _parameters The parameters for the request. There are necessary
-	 *                    "order_id", "amount","transaction_id", "currency" (ISO 4217)
-	 *                    and "language" (ISO 639-1).
+	 * @param parameters The parameters for the request. There are necessary
+	 *                   "order_id", "amount","transaction_id", "currency" (ISO 4217)
+	 *                   and "language" (ISO 639-1).
 	 * @throws Exception
 	 */
-	public RefundResponse refund(HashMap<String, String> _parameters) throws Exception {
-		executeServerRequest(Barzahlen.BARZAHLEN_REFUND_URL, assembleParameters(_parameters));
+	public RefundResponse refund(Map<String, String> parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_REFUND_URL, assembleParameters(parameters));
 
 		return refundResponse;
 	}
 
 	@Override
-	protected String[] getParametersTemplate() {
-		String parametersTemplate[] = new String[6];
-		parametersTemplate[0] = "shop_id";
-		parametersTemplate[1] = "transaction_id";
-		parametersTemplate[2] = "amount";
-		parametersTemplate[3] = "currency";
-		parametersTemplate[4] = "language";
-		parametersTemplate[5] = "payment_key";
+	protected List<String> getParametersTemplate() {
+		List<String> parametersTemplate = new ArrayList<String>(6);
+
+		parametersTemplate.add("shop_id");
+		parametersTemplate.add("transaction_id");
+		parametersTemplate.add("amount");
+		parametersTemplate.add("currency");
+		parametersTemplate.add("language");
+		parametersTemplate.add("payment_key");
 
 		return parametersTemplate;
 	}
 
 	@Override
-	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		request = new BarzahlenApiRequest(_targetURL, RefundResponse.class);
-		successful = request.doRequest(_urlParameters);
+	protected boolean executeServerRequest(String targetUrl, String urlParameters) throws Exception {
+		request = new BarzahlenApiRequest(targetUrl, RefundResponse.class);
+		successful = request.doRequest(urlParameters);
 
 		if (isSandboxMode()) {
-			refundRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage() + ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
+			refundRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage() + ". Parameters: " + ServerRequest.formatReadableParameters(urlParameters));
 			refundRequestLog.debug(request.getResult());
 
 			if (isSuccessful()) {
@@ -106,9 +109,9 @@ public final class RefundRequest extends ServerRequest {
 		}
 
 		if (!isSuccessful()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Refund request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.XML_ERROR, "Refund request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Refund request failed - retry", "Data received is not correct (hashes do not match)");
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.HASH_ERROR, "Refund request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
 

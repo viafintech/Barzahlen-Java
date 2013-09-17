@@ -23,10 +23,11 @@ package de.barzahlen.notification;
 
 import de.barzahlen.Barzahlen;
 import de.barzahlen.configuration.NotificationConfiguration;
+import de.barzahlen.enums.NotificationErrorCode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Parent class for all notifications
@@ -38,7 +39,7 @@ public abstract class Notification extends Barzahlen {
 	/**
 	 * Keeps track of the errors with the notifications.
 	 */
-	public static NotificationErrorCode BARZAHLEN_NOTIFICATION_ERROR_CODE;
+	public static NotificationErrorCode notificationErrorCode;
 
 	/**
 	 * Constant for the "state" request parameter
@@ -130,12 +131,12 @@ public abstract class Notification extends Barzahlen {
 	/**
 	 * The server request
 	 */
-	protected final HttpServletRequest request;
+	private final HttpServletRequest request;
 
 	/**
 	 * The server response
 	 */
-	protected final HttpServletResponse response;
+	private final HttpServletResponse response;
 
 	/**
 	 * Constructor with parameters
@@ -143,14 +144,22 @@ public abstract class Notification extends Barzahlen {
 	public Notification(NotificationConfiguration notificationConfiguration) {
 		super(notificationConfiguration);
 
-		this.request = notificationConfiguration.getRequest();
-		this.response = notificationConfiguration.getResponse();
+		request = notificationConfiguration.getRequest();
+		response = notificationConfiguration.getResponse();
+	}
+
+	public HttpServletResponse getResponse() {
+		return response;
+	}
+
+	public HttpServletRequest getRequest() {
+		return request;
 	}
 
 	/**
 	 * Checks if the notification received from the server is valid.
 	 *
-	 * @param _parameters The parameters to be compared with the notification received.
+	 * @param parameters The parameters to be compared with the notification received.
 	 *                    They should be "barzahlen_transaction_id",
 	 *                    "barzahlen_transaction_state", "customer_email", "currency"
 	 *                    (ISO 4217) and "amount" for PaymentNotification and
@@ -159,5 +168,5 @@ public abstract class Notification extends Barzahlen {
 	 * @return True if the notification is valid. Throws an exception otherwise.
 	 * @throws Exception
 	 */
-	public abstract boolean checkNotification(HashMap<String, String> _parameters) throws Exception;
+	public abstract boolean checkNotification(Map<String, String> parameters) throws Exception;
 }

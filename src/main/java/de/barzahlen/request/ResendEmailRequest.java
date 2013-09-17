@@ -31,7 +31,9 @@ import de.barzahlen.tools.HashTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implements the resend email webservice
@@ -62,36 +64,37 @@ public final class ResendEmailRequest extends ServerRequest {
 	/**
 	 * Executes the resend email for a specific order.
 	 *
-	 * @param _parameters The parameters for the request. There are necessary
-	 *                    "order_id", "transaction_id", "transaction_state" and
-	 *                    "language" (ISO 639-1).
+	 * @param parameters The parameters for the request. There are necessary
+	 *                   "order_id", "transaction_id", "transaction_state" and
+	 *                   "language" (ISO 639-1).
 	 * @throws Exception
 	 */
-	public ResendEmailResponse resendEmail(HashMap<String, String> _parameters) throws Exception {
-		executeServerRequest(Barzahlen.BARZAHLEN_RESEND_EMAIL_URL, assembleParameters(_parameters));
+	public ResendEmailResponse resendEmail(Map<String, String> parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_RESEND_EMAIL_URL, assembleParameters(parameters));
 
 		return resendEmailResponse;
 	}
 
 	@Override
-	protected String[] getParametersTemplate() {
-		String parametersTemplate[] = new String[4];
-		parametersTemplate[0] = "shop_id";
-		parametersTemplate[1] = "transaction_id";
-		parametersTemplate[2] = "language";
-		parametersTemplate[3] = "payment_key";
+	protected List<String> getParametersTemplate() {
+		List<String> parametersTemplate = new ArrayList<String>(4);
+
+		parametersTemplate.add("shop_id");
+		parametersTemplate.add("transaction_id");
+		parametersTemplate.add("language");
+		parametersTemplate.add("payment_key");
 
 		return parametersTemplate;
 	}
 
 	@Override
-	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		request = new BarzahlenApiRequest(_targetURL, ResendEmailResponse.class);
-		successful = request.doRequest(_urlParameters);
+	protected boolean executeServerRequest(String targetUrl, String urlParameters) throws Exception {
+		request = new BarzahlenApiRequest(targetUrl, ResendEmailResponse.class);
+		successful = request.doRequest(urlParameters);
 
 		if (isSandboxMode()) {
 			resendEmailRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
-					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
+					+ ". Parameters: " + ServerRequest.formatReadableParameters(urlParameters));
 			resendEmailRequestLog.debug(request.getResult());
 
 			if (isSuccessful()) {
@@ -104,9 +107,9 @@ public final class ResendEmailRequest extends ServerRequest {
 		}
 
 		if (!isSuccessful()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.XML_ERROR, "Resend email request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.XML_ERROR, "Resend email request failed - retry", "Error received from the server. Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Resend email request failed - retry", "Data received is not correct (hashes do not match)");
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.HASH_ERROR, "Resend email request failed - retry", "Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
 

@@ -25,7 +25,8 @@ import de.barzahlen.configuration.Configuration;
 import de.barzahlen.configuration.NotificationConfiguration;
 import de.barzahlen.tools.HashTools;
 
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Parent class for all the SDK. Stores the variables shared among all classes.
@@ -145,7 +146,7 @@ public class Barzahlen {
 	 * @param parameters Parameters mapped to correct field
 	 * @return SHA512 hash as string
 	 */
-	public String createHash(String[] template, HashMap<String, String> parameters) {
+	public String createHash(List<String> template, Map<String, String> parameters) {
 		StringBuilder message = new StringBuilder();
 
 		for (String value : template) {
@@ -170,7 +171,7 @@ public class Barzahlen {
 	 * @param parameters Parameters mapped to correct field
 	 * @return parameters for url
 	 */
-	public String createParametersString(String[] template, HashMap<String, String> parameters) {
+	public String createParametersString(List<String> template, Map<String, String> parameters) {
 		StringBuilder parametersString = new StringBuilder();
 
 		for (String value : template) {

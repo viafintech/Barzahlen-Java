@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Parent class for all server requests.
@@ -102,18 +104,15 @@ public abstract class ServerRequest extends Barzahlen {
 	 * Takes a string with the parameters for a post request and formats it in
 	 * something more human readable.
 	 *
-	 * @param _parameters The post parameters
+	 * @param parameters The post parameters
 	 * @return The parameters formatted
 	 */
-	public static String formatReadableParameters(String _parameters) {
-		String[] params = _parameters.replace("&", ", &").split("&");
+	public static String formatReadableParameters(String parameters) {
+		String[] params = parameters.replace("&", ", &").split("&");
 
-		int length = params.length;
 		String finalParams = "{";
-
-		for (int i = 0; i < length; i++) {
-			params[i] = params[i].replace("=", " => ");
-			finalParams += params[i];
+		for (String param : params) {
+			finalParams += param.replace("=", " => ");
 		}
 
 		return finalParams + "}";
@@ -123,52 +122,52 @@ public abstract class ServerRequest extends Barzahlen {
 	 * Reacts to an error when a server request is executed. Does also the
 	 * "retry" feature, that is, retries the requests when an error occur.
 	 *
-	 * @param _targetURL     The url to retry the request
-	 * @param _urlParameters The parameters for the url to retry the request
-	 * @param _errorCode     The error code
-	 * @param _errorMessage1 The error message to show when first request fails
-	 * @param _errorMessage2 The error message to show when second request fails
+	 * @param targetUrl     The url to retry the request
+	 * @param urlParameters The parameters for the url to retry the request
+	 * @param errorCode     The error code
+	 * @param errorMessage1 The error message to show when first request fails
+	 * @param errorMessage2 The error message to show when second request fails
 	 * @return True if the request is successful. An exception is thrown otherwise
 	 * @throws Exception
 	 */
-	protected boolean errorAction(String _targetURL, String _urlParameters, RequestErrorCode _errorCode, String _errorMessage1, String _errorMessage2) throws Exception {
+	protected boolean errorAction(String targetUrl, String urlParameters, RequestErrorCode errorCode, String errorMessage1, String errorMessage2) throws Exception {
 		if (ServerRequest.BARZAHLEN_REQUEST_RETRY) {
 			logger.warn("Request to Barzahlen failed, try to retry");
 			ServerRequest.BARZAHLEN_REQUEST_RETRY = false;
 
 			if (isSandboxMode()) {
-				logger.debug("Retrying call to {}", _targetURL);
-				logger.debug("Error message 1 {}", _errorMessage1);
-				logger.debug("Error message 2 {}", _errorMessage2);
+				logger.debug("Retrying call to {}", targetUrl);
+				logger.debug("Error message 1 {}", errorMessage1);
+				logger.debug("Error message 2 {}", errorMessage2);
 			}
 
-			return executeServerRequest(_targetURL, _urlParameters);
+			return executeServerRequest(targetUrl, urlParameters);
 		}
 
 		// retry did not help
 		ServerRequest.BARZAHLEN_REQUEST_RETRY = true;
-		BARZAHLEN_REQUEST_ERROR_CODE = _errorCode;
+		BARZAHLEN_REQUEST_ERROR_CODE = errorCode;
 
-		throw new RequestException(_errorMessage2);
+		throw new RequestException(errorMessage2);
 	}
 
 	/**
 	 * Builds all the parameters necessary for the refund request.
 	 *
-	 * @param _parameters The parameters to assemble
+	 * @param parameters The parameters to assemble
 	 * @return The parameters already assembled, ready for the post request.
 	 */
-	protected String assembleParameters(HashMap<String, String> _parameters) {
-		HashMap<String, String> parameters = new HashMap<String, String>(_parameters);
+	protected String assembleParameters(Map<String, String> parameters) {
+		HashMap<String, String> parameterMap = new HashMap<String, String>(parameters);
 
-		parameters.put("shop_id", getShopId());
-		parameters.put("payment_key", getPaymentKey());
+		parameterMap.put("shop_id", getShopId());
+		parameterMap.put("payment_key", getPaymentKey());
 
-		String hash = createHash(getParametersTemplate(), parameters);
+		String hash = createHash(getParametersTemplate(), parameterMap);
 
-		parameters.remove("payment_key");
+		parameterMap.remove("payment_key");
 
-		StringBuilder parametersString = new StringBuilder(createParametersString(getParametersTemplate(), parameters));
+		StringBuilder parametersString = new StringBuilder(createParametersString(getParametersTemplate(), parameterMap));
 
 		parametersString.append("&");
 		parametersString.append("hash");
@@ -182,18 +181,18 @@ public abstract class ServerRequest extends Barzahlen {
 	 * Returns an string array with names of variables that could be used
 	 * for the request, in the order where they will be used to generate the hash
 	 *
-	 * @return String[]
+	 * @return List
 	 */
-	protected abstract String[] getParametersTemplate();
+	protected abstract List<String> getParametersTemplate();
 
 	/**
 	 * Executes a http request via post
 	 *
-	 * @param _targetURL     The url to make the request to
-	 * @param _urlParameters The parameters of the http post request
+	 * @param targetUrl     The url to make the request to
+	 * @param urlParameters The parameters of the http post request
 	 * @throws Exception
 	 */
-	protected abstract boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception;
+	protected abstract boolean executeServerRequest(String targetUrl, String urlParameters) throws Exception;
 
 	/**
 	 * Compares the hash of the data received from the server to the one inside

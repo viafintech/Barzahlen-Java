@@ -31,7 +31,9 @@ import de.barzahlen.tools.HashTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Implements the update order id webservice
@@ -62,48 +64,49 @@ public class UpdateRequest extends ServerRequest {
 	/**
 	 * Executes the update order identifier for a specific order.
 	 *
-	 * @param _parameters The parameters for the request. There are necessary "shop_id",
-	 *                    "transaction_id" and "order_id"
+	 * @param parameters The parameters for the request. There are necessary "shop_id",
+	 *                   "transaction_id" and "order_id"
 	 * @throws Exception
 	 */
-	public UpdateResponse updateOrder(HashMap<String, String> _parameters) throws Exception {
-		executeServerRequest(Barzahlen.BARZAHLEN_UPDATE_URL, assembleParameters(_parameters));
+	public UpdateResponse updateOrder(Map<String, String> parameters) throws Exception {
+		executeServerRequest(Barzahlen.BARZAHLEN_UPDATE_URL, assembleParameters(parameters));
 
 		return updateResponse;
 	}
 
 	@Override
-	protected String[] getParametersTemplate() {
-		String parametersTemplate[] = new String[4];
-		parametersTemplate[0] = "shop_id";
-		parametersTemplate[1] = "transaction_id";
-		parametersTemplate[2] = "order_id";
-		parametersTemplate[3] = "payment_key";
+	protected List<String> getParametersTemplate() {
+		List<String> parametersTemplate = new ArrayList<String>(4);
+
+		parametersTemplate.add("shop_id");
+		parametersTemplate.add("transaction_id");
+		parametersTemplate.add("order_id");
+		parametersTemplate.add("payment_key");
 
 		return parametersTemplate;
 	}
 
 	@Override
-	protected String assembleParameters(HashMap<String, String> _parameters) {
-		String hashMessage = getShopId() + ";" + _parameters.get("transaction_id") + ";" + _parameters.get("order_id") + ";"
+	protected String assembleParameters(Map<String, String> parameters) {
+		String hashMessage = getShopId() + ";" + parameters.get("transaction_id") + ";" + parameters.get("order_id") + ";"
 				+ getPaymentKey();
 
 		String hash = HashTools.getHash(hashMessage);
 
-		String params = "shop_id=" + getShopId() + "&transaction_id=" + _parameters.get("transaction_id") + "&order_id="
-				+ _parameters.get("order_id") + "&hash=" + hash;
+		String params = "shop_id=" + getShopId() + "&transaction_id=" + parameters.get("transaction_id") + "&order_id="
+				+ parameters.get("order_id") + "&hash=" + hash;
 
 		return params;
 	}
 
 	@Override
-	protected boolean executeServerRequest(String _targetURL, String _urlParameters) throws Exception {
-		request = new BarzahlenApiRequest(_targetURL, UpdateResponse.class);
-		successful = request.doRequest(_urlParameters);
+	protected boolean executeServerRequest(String targetUrl, String urlParameters) throws Exception {
+		request = new BarzahlenApiRequest(targetUrl, UpdateResponse.class);
+		successful = request.doRequest(urlParameters);
 
 		if (isSandboxMode()) {
 			updateRequestLog.debug("Response code: " + request.getResponseCode() + ". Response message: " + request.getResponseMessage()
-					+ ". Parameters: " + ServerRequest.formatReadableParameters(_urlParameters));
+					+ ". Parameters: " + ServerRequest.formatReadableParameters(urlParameters));
 			updateRequestLog.debug(request.getResult());
 
 			if (isSuccessful()) {
@@ -117,14 +120,14 @@ public class UpdateRequest extends ServerRequest {
 
 		if (!isSuccessful()) {
 			return errorAction(
-					_targetURL,
-					_urlParameters,
+					targetUrl,
+					urlParameters,
 					RequestErrorCode.XML_ERROR,
 					"Update request failed - retry",
 					"Error received from the server. Response code: " + request.getResponseCode() + ". Response message: "
 							+ request.getResponseMessage());
 		} else if (!compareHashes()) {
-			return errorAction(_targetURL, _urlParameters, RequestErrorCode.HASH_ERROR, "Update request failed - retry",
+			return errorAction(targetUrl, urlParameters, RequestErrorCode.HASH_ERROR, "Update request failed - retry",
 					"Data received is not correct (hashes do not match)");
 		} else {
 			BARZAHLEN_REQUEST_ERROR_CODE = RequestErrorCode.SUCCESS;
