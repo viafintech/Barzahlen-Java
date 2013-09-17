@@ -225,7 +225,7 @@ public final class RefundNotification extends Notification {
 		DecimalFormat df = new DecimalFormat("#.00");
 
 		amount = df.format(Double.valueOf(amount)).replace(',', '.');
-		String formattedAmount = df.format(Double.valueOf(amount)).replace(',', '.');
+		String formattedAmount = df.format(Double.valueOf(this.amount)).replace(',', '.');
 
 		if (!amount.equals(formattedAmount)) {
 			if (isSandboxMode()) {
