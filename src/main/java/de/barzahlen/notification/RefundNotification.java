@@ -50,67 +50,67 @@ public final class RefundNotification extends Notification {
 	/**
 	 * A print writer to show some output in the browser.
 	 */
-	protected PrintWriter outStream;
+	private PrintWriter outStream;
 
 	/**
 	 * The transaction state retrieved from the server request
 	 */
-	protected String state;
+	private String state;
 
 	/**
 	 * The refund transaction identifier retrieved from the server request
 	 */
-	protected String refundTransactionId;
+	private String refundTransactionId;
 
 	/**
 	 * The origin transaction identifier retrieved from the server request
 	 */
-	protected String originTransactionId;
+	private String originTransactionId;
 
 	/**
 	 * The shop identifier retrieved from the server request
 	 */
-	protected String shopId;
+	private String shopId;
 
 	/**
 	 * The customer email retrieved from the server request
 	 */
-	protected String customerEmail;
+	private String customerEmail;
 
 	/**
 	 * The transaction amount retrieved from the server request
 	 */
-	protected String amount;
+	private String amount;
 
 	/**
 	 * The currency retrieved from the server request
 	 */
-	protected String currency;
+	private String currency;
 
 	/**
 	 * The origin order identifier from the server request
 	 */
-	protected String originOrderId;
+	private String originOrderId;
 
 	/**
 	 * The custom variable (0) retrieved from the server request
 	 */
-	protected String customVar0;
+	private String customVar0;
 
 	/**
 	 * The custom variable (1) retrieved from the server request
 	 */
-	protected String customVar1;
+	private String customVar1;
 
 	/**
 	 * The custom variable (2) retrieved from the server request
 	 */
-	protected String customVar2;
+	private String customVar2;
 
 	/**
 	 * The hash retrieved from the server request
 	 */
-	protected String hash;
+	private String hash;
 
 	/**
 	 * Constructor with parameters
@@ -120,71 +120,71 @@ public final class RefundNotification extends Notification {
 	public RefundNotification(NotificationConfiguration notificationConfiguration) throws IOException {
 		super(notificationConfiguration);
 
-		this.outStream = this.getResponse().getWriter();
-		this.state = this.getRequest().getParameter(STATE);
-		this.refundTransactionId = this.getRequest().getParameter(REFUND_TRANSACTION_ID);
-		this.originTransactionId = this.getRequest().getParameter(ORIGIN_TRANSACTION_ID);
-		this.shopId = this.getRequest().getParameter(SHOP_ID);
-		this.customerEmail = this.getRequest().getParameter(CUSTOMER_EMAIL);
-		this.amount = this.getRequest().getParameter(AMOUNT);
-		this.currency = this.getRequest().getParameter(CURRENCY);
-		this.originOrderId = this.getRequest().getParameter(ORIGIN_ORDER_ID);
-		this.customVar0 = this.getRequest().getParameter(CUSTOM_VAR_0);
-		this.customVar1 = this.getRequest().getParameter(CUSTOM_VAR_1);
-		this.customVar2 = this.getRequest().getParameter(CUSTOM_VAR_2);
-		this.hash = this.getRequest().getParameter(HASH);
+		outStream = getResponse().getWriter();
+		state = getRequest().getParameter(STATE);
+		refundTransactionId = getRequest().getParameter(REFUND_TRANSACTION_ID);
+		originTransactionId = getRequest().getParameter(ORIGIN_TRANSACTION_ID);
+		shopId = getRequest().getParameter(SHOP_ID);
+		customerEmail = getRequest().getParameter(CUSTOMER_EMAIL);
+		amount = getRequest().getParameter(AMOUNT);
+		currency = getRequest().getParameter(CURRENCY);
+		originOrderId = getRequest().getParameter(ORIGIN_ORDER_ID);
+		customVar0 = getRequest().getParameter(CUSTOM_VAR_0);
+		customVar1 = getRequest().getParameter(CUSTOM_VAR_1);
+		customVar2 = getRequest().getParameter(CUSTOM_VAR_2);
+		hash = getRequest().getParameter(HASH);
 	}
 
 	@Override
 	public boolean checkNotification(Map<String, String> parameters) throws Exception {
-		String message = this.state + ";" + this.refundTransactionId + ";" + this.originTransactionId + ";" + this.shopId + ";"
-				+ this.customerEmail + ";" + this.amount + ";" + this.currency + ";" + this.originOrderId + ";" + this.customVar0
-				+ ";" + this.customVar1 + ";" + this.customVar2 + ";" + this.getNotificationKey();
+		String message = state + ";" + refundTransactionId + ";" + originTransactionId + ";" + shopId + ";"
+				+ customerEmail + ";" + amount + ";" + currency + ";" + originOrderId + ";" + customVar0
+				+ ";" + customVar1 + ";" + customVar2 + ";" + getNotificationKey();
 
-		this.getResponse().setStatus(HttpServletResponse.SC_OK);
+		getResponse().setStatus(HttpServletResponse.SC_OK);
 
 		// Check if everything is ok
-		if (!this.getShopId().equals(this.shopId)) {
+		if (!getShopId().equals(shopId)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received is not correct (shop id is incorrect).");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.SHOP_ID_ERROR;
-			this.outStream.println("Data received is not correct (shop id is incorrect).");
+			outStream.println("Data received is not correct (shop id is incorrect).");
 			throw new NotificationException("Data received is not correct (shop id is incorrect).");
 		}
 
-		if (!this.state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_COMPLETED) && !this.state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_EXPIRED)) {
+		if (!state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_COMPLETED) && !state.equals(ServerRequest.BARZAHLEN_REFUND_ORDER_EXPIRED)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.TRANSACTION_STATE_ERROR;
-			this.outStream.println("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
+			outStream.println("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 			throw new NotificationException("Data received in callback not correct: The transaction state is neither \"refund_completed\" nor \"refund_expired\".");
 		}
 
-		if (!parameters.get("origin_transaction_id").equals(this.originTransactionId)) {
+		if (!parameters.get("origin_transaction_id").equals(originTransactionId)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: Origin transaction ID not correct.");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.BARZAHLEN_ORIGIN_TRANSACTION_ID_ERROR;
-			this.outStream.println("Data received in callback not correct: Origin transaction ID not correct.");
+			outStream.println("Data received in callback not correct: Origin transaction ID not correct.");
 			throw new NotificationException("Data received in callback not correct: Origin transaction ID not correct.");
 		}
 
-		if (!parameters.get("origin_order_id").equals(this.originOrderId)) {
+		if (!parameters.get("origin_order_id").equals(originOrderId)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: Origin order ID not correct.");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.BARZAHLEN_ORIGIN_ORDER_ID_ERROR;
-			this.outStream.println("Data received in callback not correct: Origin order ID not correct.");
+			outStream.println("Data received in callback not correct: Origin order ID not correct.");
 			throw new NotificationException("Data received in callback not correct: Origin order ID not correct.");
 		}
 
@@ -193,31 +193,31 @@ public final class RefundNotification extends Notification {
 				logger.debug("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.BARZAHLEN_TRANSACTION_STATE_ERROR;
-			this.outStream.println("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
+			outStream.println("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
 			throw new NotificationException("Database doesn't have the barzahlen transaction state set to \"refund_pending\".");
 		}
 
-		if (!parameters.get("customer_email").equals(this.customerEmail)) {
+		if (!parameters.get("customer_email").equals(customerEmail)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: Customer email not correct.");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.CUSTOMER_EMAIL_ERROR;
-			this.outStream.println("Data received in callback not correct: Customer email not correct.");
+			outStream.println("Data received in callback not correct: Customer email not correct.");
 			throw new NotificationException("Data received in callback not correct: Customer email not correct.");
 		}
 
-		if (!parameters.get("currency").equals(this.currency)) {
+		if (!parameters.get("currency").equals(currency)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: Currency not correct.");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.CURRENCY_ERROR;
-			this.outStream.println("Data received in callback not correct: Currency not correct.");
+			outStream.println("Data received in callback not correct: Currency not correct.");
 			throw new NotificationException("Data received in callback not correct: Currency not correct.");
 		}
 
@@ -225,32 +225,71 @@ public final class RefundNotification extends Notification {
 		DecimalFormat df = new DecimalFormat("#.00");
 
 		amount = df.format(Double.valueOf(amount)).replace(',', '.');
-		String formattedAmount = df.format(Double.valueOf(this.amount)).replace(',', '.');
+		String formattedAmount = df.format(Double.valueOf(amount)).replace(',', '.');
 
 		if (!amount.equals(formattedAmount)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: Amount not correct.");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.AMOUNT_ERROR;
-			this.outStream.println("Data received in callback not correct: Amount not correct.");
+			outStream.println("Data received in callback not correct: Amount not correct.");
 			throw new NotificationException("Data received in callback not correct: Amount not correct.");
 		}
 
-		if (!HashTools.getHash(message).equals(this.hash)) {
+		if (!HashTools.getHash(message).equals(hash)) {
 			if (isSandboxMode()) {
 				logger.debug("Data received in callback not correct: Hash not correct.");
 			}
 
-			this.getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			getResponse().setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			notificationErrorCode = NotificationErrorCode.HASH_ERROR;
-			this.outStream.println("Data received in callback not correct: Hash not correct.");
+			outStream.println("Data received in callback not correct: Hash not correct.");
 			throw new NotificationException("Data received in callback not correct: Hash not correct.");
 		}
 
 		notificationErrorCode = NotificationErrorCode.SUCCESS;
 		return true;
+	}
 
+	public String getState() {
+		return state;
+	}
+
+	public String getRefundTransactionId() {
+		return refundTransactionId;
+	}
+
+	public String getOriginTransactionId() {
+		return originTransactionId;
+	}
+
+	public String getCustomerEmail() {
+		return customerEmail;
+	}
+
+	public String getAmount() {
+		return amount;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public String getOriginOrderId() {
+		return originOrderId;
+	}
+
+	public String getCustomVar0() {
+		return customVar0;
+	}
+
+	public String getCustomVar1() {
+		return customVar1;
+	}
+
+	public String getCustomVar2() {
+		return customVar2;
 	}
 }

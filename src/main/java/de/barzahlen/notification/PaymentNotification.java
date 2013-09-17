@@ -236,6 +236,41 @@ public final class PaymentNotification extends Notification {
 
 		notificationErrorCode = NotificationErrorCode.SUCCESS;
 		return true;
+	}
 
+	public String getState() {
+		return state;
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public String getCustomerEmail() {
+		return customerEmail;
+	}
+
+	public String getAmount() {
+		return amount;
+	}
+
+	public String getCurrency() {
+		return currency;
+	}
+
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public String getCustomVar0() {
+		return customVar0;
+	}
+
+	public String getCustomVar1() {
+		return customVar1;
+	}
+
+	public String getCustomVar2() {
+		return customVar2;
 	}
 }
