@@ -1,0 +1,185 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<name>Barzahlen-Java</name>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>de.barzahlen</groupId>
+	<artifactId>barzahlen</artifactId>
+	<version>1.0.4</version>
+	<packaging>jar</packaging>
+	<description>Java Barzahlen SDK</description>
+	<url>https://www.barzahlen.de/</url>
+
+	<organization>
+		<name>Cash Payment Solutions GmbH</name>
+		<url>https://www.barzahlen.de/</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>GNU General Public License, version 3 (GPL-3.0)</name>
+			<url>http://opensource.org/licenses/GPL-3.0</url>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<name>Jesus Javier Nuno Garcia</name>
+			<organization>Zerebro Internet GmbH</organization>
+			<organizationUrl>https://www.barzahlen.de/</organizationUrl>
+		</developer>
+		<developer>
+			<name>Alexander Diebler</name>
+			<organization>Zerebro Internet GmbH</organization>
+			<organizationUrl>https://www.barzahlen.de/</organizationUrl>
+		</developer>
+	</developers>
+
+	<contributors>
+		<contributor>
+			<name>Andreas Buchholz</name>
+			<email>a.buchholz@keuthen.net</email>
+			<organization>Keuthen AG</organization>
+			<organizationUrl>http://www.keuthen.net/</organizationUrl>
+		</contributor>
+	</contributors>
+
+	<scm>
+		<url>scm:git:https://github.com/Barzahlen/Barzahlen-Java.git</url>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/Barzahlen/Barzahlen-Java/issues</url>
+		<system>GitHub</system>
+	</issueManagement>
+
+	<properties>
+		<java.version>1.6</java.version>
+		<junit.version>4.10</junit.version>
+		<logback.version>1.0.7</logback.version>
+		<slf4j.version>1.7.2</slf4j.version>
+		<commons-lang.version>2.4</commons-lang.version>
+		<commons-codec.version>1.8</commons-codec.version>
+		<easymock.version>3.1</easymock.version>
+		<mockito.version>1.9.5</mockito.version>
+		<servlet.version>3.0.20100224</servlet.version>
+		<simplexml.version>2.7.1</simplexml.version>
+		<umlgraph.version>5.6.6</umlgraph.version>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<attach>true</attach>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<show>private</show>
+					<quiet>true</quiet>
+					<doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
+					<docletArtifact>
+						<groupId>org.umlgraph</groupId>
+						<artifactId>umlgraph</artifactId>
+						<version>${umlgraph.version}</version>
+					</docletArtifact>
+					<useStandardDocletOptions>true</useStandardDocletOptions>
+					<additionalparam>
+						-inferrel -inferdep -quiet -hide java.* -hide org.eclipse.* -collpackages java.util.* -postfixpackage
+						-nodefontsize 9 -nodefontpackagesize 7 -attributes -types -visibility -operations -constructors
+						-enumerations -enumconstants -views
+					</additionalparam>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jul-to-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${commons-lang.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.easymock</groupId>
+			<artifactId>easymock</artifactId>
+			<version>${easymock.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>${mockito.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>${servlet.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.simpleframework</groupId>
+			<artifactId>simple-xml</artifactId>
+			<version>${simplexml.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>${commons-codec.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.umlgraph</groupId>
+			<artifactId>umlgraph</artifactId>
+			<version>${umlgraph.version}</version>
+		</dependency>
+	</dependencies>
+</project>

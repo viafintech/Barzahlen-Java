@@ -1,3 +1,16 @@
+==1.0.4 (10.09.2013) (Andreas Buchholz)==
+* Replaced StaX with Simple-XML
+* Introduced response beans
+* Changed hash calculation
+* Bugfixes
+
+==1.0.3 (06.09.2013) (Andreas Buchholz)==
+* Removed staging urls
+* Code cleanup
+
+==1.0.2 (04.09.2013) (Andreas Buchholz)==
+* Replaced ant with maven
+
 ==1.0.1 (29.04.2013)==
 * added cancel request
 * code optimization
