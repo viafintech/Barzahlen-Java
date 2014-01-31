@@ -5,8 +5,8 @@ package de.barzahlen.api.online;
  */
 public class Configuration {
 
-    private final static String PRODUCTION_URL = "https://api-staging.barzahlen.de/v1/";
-    private final static String SANDBOX_URL = "https://api-sandbox-staging.barzahlen.de/v1/";
+    private final static String PRODUCTION_URL = "https://api.barzahlen.de/v1/";
+    private final static String SANDBOX_URL = "https://api-sandbox.barzahlen.de/v1/";
 
     private boolean sandboxMode;
     private String shopId;
