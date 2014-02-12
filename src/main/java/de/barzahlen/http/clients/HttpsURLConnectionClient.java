@@ -7,7 +7,9 @@ import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Map;
 
 /**
@@ -65,11 +67,15 @@ public class HttpsURLConnectionClient implements HttpClient {
 
         if (parameters.size() > 0) {
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
-                parametersStringBuilder
-                        .append(entry.getKey())
-                        .append("=")
-                        .append(entry.getValue())
-                        .append("&");
+                try {
+                    parametersStringBuilder
+                            .append(URLEncoder.encode(entry.getKey(), "utf-8"))
+                            .append("=")
+                            .append(URLEncoder.encode(entry.getValue(), "utf-8"))
+                            .append("&");
+                } catch (UnsupportedEncodingException e) {
+                    throw new HttpRequestException("Could not create parameters string", e);
+                }
             }
 
             parametersString = parametersStringBuilder.toString();

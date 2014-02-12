@@ -19,14 +19,14 @@ public class HashGeneratorTest {
         parametersOrder.add("foo1");
         parametersOrder.add("foo2");
         parametersOrder.add("foo3");
-        parametersOrder.add("paymentKey");
+        parametersOrder.add("payment_key");
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("foo1", "foo1");
         parameters.put("foo2", "bar2");
         parameters.put("foo3", "bar3");
 
-        HashGenerator hashGenerator = new HashGenerator(parametersOrder, "paymentKey");
+        HashGenerator hashGenerator = new HashGenerator(parametersOrder, "payment_key");
         String generatedHash = hashGenerator.generateHash("key", parameters);
 
         assertEquals(expectedHash, generatedHash);
