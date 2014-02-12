@@ -56,7 +56,7 @@ public class BarzahlenApi {
     }
 
     private String buildHash(final List<String> parametersOrder, final Map<String, String> parameters) {
-        HashGenerator hashGenerator = new HashGenerator(parametersOrder, "paymentKey");
+        HashGenerator hashGenerator = new HashGenerator(parametersOrder, "payment_key");
         return hashGenerator.generateHash(configuration.getPaymentKey(), parameters);
     }
 }

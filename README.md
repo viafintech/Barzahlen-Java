@@ -1,4 +1,4 @@
-# Barzahlen Payment Module Java SDK (v2.0.0)
+# Barzahlen Payment Module Java SDK (v2.0.1)
 
 ## Copyright
 (c) 2014 Cash Payment Solutions GmbH
