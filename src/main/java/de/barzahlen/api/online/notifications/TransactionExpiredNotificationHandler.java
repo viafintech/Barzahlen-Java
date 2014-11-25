@@ -39,7 +39,7 @@ abstract public class TransactionExpiredNotificationHandler extends TransactionN
 
         validateRequest(parameters);
 
-        onTransactionExpired(("transaction_id"), parameters.get("shop_id"),
+        onTransactionExpired(parameters.get("transaction_id"), parameters.get("shop_id"),
                 parameters.get("customer_email"), parameters.get("amount"), parameters.get("currency"),
                 parameters.get("order_id"), parameters.get("custom_var_0"), parameters.get("custom_var_1"),
                 parameters.get("custom_var_2"));
