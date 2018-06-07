@@ -1,5 +1,8 @@
 # Barzahlen Payment Module Java SDK (v2.0.1)
 
+## Deprecation Notice
+This SDK is no longer maintained and should not be used for new projects. There may be a newer version with support for our [API v2](https://docs.barzahlen.de/api/v2/) in the future.
+
 ## Copyright
 (c) 2014 Cash Payment Solutions GmbH
 
